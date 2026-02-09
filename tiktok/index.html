@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok</title>
+    <title>TikTok Style</title>
     <style>
         html, body {
             margin: 0;
@@ -70,77 +70,68 @@
 
     <div id="videosWrapper">
         <div class="video-container">
-            <video src="1.mp4" autoplay loop playsinline></video>
+            <video src="1.mp4" autoplay muted loop playsinline></video>
             <div class="description">Every diva beats her bf 🤷‍♀️</div>
         </div>
         <div class="video-container">
-            <video src="2.mp4" autoplay loop playsinline></video>
+            <video src="2.mp4" autoplay muted loop playsinline></video>
             <div class="description">Wziął mnie tylko na SPACER,
                 a wróciłam wyczerpana...</div>
         </div>
         <div class="video-container">
-            <video src="3.mp4" autoplay loop playsinline></video>
+            <video src="3.mp4" autoplay muted loop playsinline></video>
             <div class="description">😠😛</div>
         </div>
         <div class="video-container">
-            <video src="4.mp4" autoplay loop playsinline></video>
+            <video src="4.mp4" autoplay muted loop playsinline></video>
             <div class="description">Jestem dla niej jak benzoo</div>
         </div>
         <div class="video-container">
-            <video src="5.mp4" autoplay loop playsinline></video>
+            <video src="5.mp4" autoplay muted loop playsinline></video>
             <div class="description">freaky ahh</div>
         </div>
         <div class="video-container">
-            <video src="6.mp4" autoplay loop playsinline></video>
+            <video src="6.mp4" autoplay muted loop playsinline></video>
             <div class="description">What do y'all think? #SLAAAAY</div>
         </div>
         <div class="video-container">
-            <video src="7.mp4" autoplay loop playsinline></video>
+            <video src="7.mp4" autoplay muted loop playsinline></video>
             <div class="description">masz BANAAAA</div>
         </div>
         <div class="video-container">
-            <video src="8.mp4" autoplay loop playsinline></video>
-            <div class="description">mmmm mmmm :c</div>
+            <video src="8.mp4" autoplay muted loop playsinline></video>
+            <div class="description">mm mm :c</div>
         </div>
         <div class="video-container">
-            <video src="9.mp4" autoplay loop playsinline></video>
+            <video src="9.mp4" autoplay muted loop playsinline></video>
             <div class="description">kocham mojego chlopaka, alkohol i palenie</div>
         </div>
         <div class="video-container">
-            <video src="10.mp4" autoplay loop playsinline></video>
-            <div class="description">A wy co lamusy? Pewnie siedzicie na piździe w domu 😂</div>
+            <video src="10.mp4" autoplay muted loop playsinline></video>
+            <div class="description">A wy co lamusy? Pewnie siedzicie
+                na piździe w domu 😂</div>
         </div>
     </div>
 
-<script>
-const videos = document.querySelectorAll("video");
+    <script>
+        const videos = document.querySelectorAll('video');
 
-function pauseAllExceptCurrent() {
-    const scrollTop = window.scrollY;
-    const windowHeight = window.innerHeight;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    // Wideo w centrum ekranu – odtwarzaj i włącz dźwięk
+                    entry.target.muted = false;
+                    entry.target.play();
+                } else {
+                    // Wideo poza ekranem – wycisz i pauzuj
+                    entry.target.muted = true;
+                    entry.target.pause();
+                }
+            });
+        }, { threshold: 0.6 }); // 60% wideo musi być widoczne
 
-    videos.forEach(video => {
-        const rect = video.getBoundingClientRect();
-        const videoTop = rect.top;
-        const videoBottom = rect.bottom;
-
-        // Sprawdza, czy wideo jest w środku ekranu
-        if (videoTop < windowHeight / 2 && videoBottom > windowHeight / 2) {
-            if (video.paused) {
-                video.play().catch(e => console.log(e));
-            }
-        } else {
-            video.pause();
-        }
-    });
-}
-
-// Wywołujemy przy scrollu i przy starcie strony
-window.addEventListener("scroll", pauseAllExceptCurrent);
-window.addEventListener("load", pauseAllExceptCurrent);
+        videos.forEach(video => observer.observe(video));
+    </script>
 
 </body>
 </html>
-
-
-
