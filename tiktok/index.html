@@ -112,7 +112,35 @@
         </div>
     </div>
 
+<script>
+const videos = document.querySelectorAll("video");
+
+function pauseAllExceptCurrent() {
+    const scrollTop = window.scrollY;
+    const windowHeight = window.innerHeight;
+
+    videos.forEach(video => {
+        const rect = video.getBoundingClientRect();
+        const videoTop = rect.top;
+        const videoBottom = rect.bottom;
+
+        // Sprawdza, czy wideo jest w środku ekranu
+        if (videoTop < windowHeight / 2 && videoBottom > windowHeight / 2) {
+            if (video.paused) {
+                video.play().catch(e => console.log(e));
+            }
+        } else {
+            video.pause();
+        }
+    });
+}
+
+// Wywołujemy przy scrollu i przy starcie strony
+window.addEventListener("scroll", pauseAllExceptCurrent);
+window.addEventListener("load", pauseAllExceptCurrent);
+
 </body>
 </html>
+
 
 
