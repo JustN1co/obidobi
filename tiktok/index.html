@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Nasze TikToki 💞</title>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.video-container {
+    position: relative;
+    height: 100vh;
+    scroll-snap-align: start;
+}
+
+video {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+/* UI overlay */
+.ui {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    color: white;
+}
+
+/* back button */
+.back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    pointer-events: auto;
+}
+
+.back a {
+    text-decoration: none;
+    color: white;
+    background: rgba(0,0,0,0.5);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+/* description */
+.desc {
+    position: absolute;
+    bottom: 30px;
+    left: 20px;
+    max-width: 70%;
+    font-size: 16px;
+}
+
+/* like */
+.like {
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    text-align: center;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.like span {
+    display: block;
+    font-size: 28px;
+}
+
+.like small {
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- VIDEO 1 -->
+<div class="video-container" data-id="1">
+    <video src="1.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 1</div>
+        <div class="like">
+            <span>❤️</span>
+            <small>0</small>
+        </div>
+    </div>
+</div>
+
+<!-- VIDEO 2 -->
+<div class="video-container" data-id="2">
+    <video src="2.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 2</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<!-- VIDEO 3 -->
+<div class="video-container" data-id="3">
+    <video src="3.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 3</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<!-- VIDEO 4 -->
+<div class="video-container" data-id="4">
+    <video src="4.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 4</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<!-- VIDEO 5 -->
+<div class="video-container" data-id="5">
+    <video src="5.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 5</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<!-- VIDEO 6 -->
+<div class="video-container" data-id="6">
+    <video src="6.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 6</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<!-- VIDEO 7 -->
+<div class="video-container" data-id="7">
+    <video src="7.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 7</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<!-- VIDEO 8 -->
+<div class="video-container" data-id="8">
+    <video src="8.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 8</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<!-- VIDEO 9 -->
+<div class="video-container" data-id="9">
+    <video src="9.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 9</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<!-- VIDEO 10 -->
+<div class="video-container" data-id="10">
+    <video src="10.mp4" autoplay muted loop playsinline></video>
+    <div class="ui">
+        <div class="back"><a href="/">← wróć</a></div>
+        <div class="desc">OPIS 10</div>
+        <div class="like"><span>❤️</span><small>0</small></div>
+    </div>
+</div>
+
+<script>
+// autoplay only visible video
+const videos = document.querySelectorAll("video");
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        entry.isIntersecting ? entry.target.play() : entry.target.pause();
+    });
+}, { threshold: 0.6 });
+videos.forEach(v => observer.observe(v));
+
+// likes (localStorage)
+document.querySelectorAll(".video-container").forEach(container => {
+    const id = container.dataset.id;
+    const likeBtn = container.querySelector(".like");
+    const count = likeBtn.querySelector("small");
+
+    let likes = localStorage.getItem("likes_" + id) || 0;
+    count.textContent = likes;
+
+    likeBtn.addEventListener("click", () => {
+        likes++;
+        localStorage.setItem("likes_" + id, likes);
+        count.textContent = likes;
+    });
+});
+</script>
+
+</body>
+</html>
