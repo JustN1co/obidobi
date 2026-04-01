@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Spicy 😈</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #111;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* powrót */
+.back {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.back a {
+    color: white;
+    text-decoration: none;
+    background: #222;
+    padding: 8px 14px;
+    border-radius: 20px;
+}
+
+/* kontener */
+.container {
+    text-align: center;
+}
+
+/* przyciski */
+.buttons {
+    margin-bottom: 40px;
+}
+
+.btn {
+    width: 120px;
+    height: 120px;
+    font-size: 40px;
+    border: none;
+    border-radius: 20px;
+    margin: 10px;
+    cursor: pointer;
+    background: #222;
+    color: white;
+}
+
+.btn:hover {
+    background: #333;
+}
+
+/* wynik */
+.result {
+    font-size: 22px;
+    max-width: 500px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="back">
+    <a href="/">← powrót</a>
+</div>
+
+<div class="container">
+    <div class="buttons">
+        <button class="btn" onclick="losuj('N')">N</button>
+        <button class="btn" onclick="losuj('O')">O</button>
+    </div>
+
+    <div class="result" id="result">
+        Kliknij literę, żeby wylosować wyzwanie 😈
+    </div>
+</div>
+
+<script>
+
+// 🔥 TU WPISUJESZ SWOJE WYZWANIA (50)
+const wyzwaniaN = [
+"Twoje wyzwanie 1",
+"Twoje wyzwanie 2",
+"Twoje wyzwanie 3",
+// ...
+];
+
+// 🔥 TU WPISUJESZ WYZWANIA DLA OBI (50)
+const wyzwaniaO = [
+"Obi wyzwanie 1",
+"Obi wyzwanie 2",
+"Obi wyzwanie 3",
+// ...
+];
+
+function losuj(kto) {
+    let lista = kto === 'N' ? wyzwaniaN : wyzwaniaO;
+
+    if (lista.length === 0) {
+        document.getElementById("result").innerText = "Brak wyzwań 💀";
+        return;
+    }
+
+    const random = Math.floor(Math.random() * lista.length);
+    document.getElementById("result").innerText = lista[random];
+}
+
+</script>
+
+</body>
+</html>
