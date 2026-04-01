@@ -14,6 +14,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    transition: 0.3s;
 }
 
 /* powrót */
@@ -29,6 +30,22 @@ body {
     background: #222;
     padding: 8px 14px;
     border-radius: 20px;
+}
+
+/* poziom */
+.level {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.level button {
+    background: #222;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
 }
 
 /* kontener */
@@ -51,10 +68,7 @@ body {
     cursor: pointer;
     background: #222;
     color: white;
-}
-
-.btn:hover {
-    background: #333;
+    transition: 0.3s;
 }
 
 /* wynik */
@@ -71,6 +85,10 @@ body {
     <a href="/">← powrót</a>
 </div>
 
+<div class="level">
+    <button id="poziomBtn" onclick="togglePoziom()">poziom wyżej</button>
+</div>
+
 <div class="container">
     <div class="buttons">
         <button class="btn" onclick="losuj('N')">N</button>
@@ -84,8 +102,10 @@ body {
 
 <script>
 
-// 🔥 TU WPISUJESZ SWOJE WYZWANIA (50)
-const wyzwaniaN = [
+let poziom = 1;
+
+// POZIOM 1
+const wyzwaniaN_lvl1 = [
 "Całuj powoli partnerkę podduszając ją w międzyczasie",
 "Przejedź językiem od szyji do ust partnerki, po czym ją pocałuj",
 "Wyliż szyję partnerki",
@@ -105,12 +125,10 @@ const wyzwaniaN = [
 "Rozbierz się do bielizny na 2 rundy",
 "Ukaraj partnerkę klapsem",
 "Wyliż sutki partnerce mając przy tym zamknięte oczy przez całe wyzwanie",
-"Wyliż bitą śmietanę z ciała partnerki",
-// ...
+"Wyliż bitą śmietanę z ciała partnerki"
 ];
 
-// 🔥 TU WPISUJESZ WYZWANIA DLA OBI (50)
-const wyzwaniaO = [
+const wyzwaniaO_lvl1 = [
 "Przeciągnij się jak kotek i pokaż swoje ciało jak na wystawie",
 "Zrób 3 malinki na ciele partnera",
 "Usiądź tyłem na kolanach partnera oraz wykonaj taniec erotyczny ocierając się tyłkiem",
@@ -130,12 +148,28 @@ const wyzwaniaO = [
 "Rościągaj się jakbyś robiła yogę, ale w samej bieliźnie",
 "Zdominuj partnera na 30 sekund siedząc lub leżąc na nim",
 "Pocałuj partnera w 3 różne sposoby",
-"Pozwól się posmarować olejkem do ciała lub balsamem przez partnera",
-// ...
+"Pozwól się posmarować olejkem do ciała lub balsamem przez partnera"
+];
+
+// POZIOM 2
+const wyzwaniaN_lvl2 = [
+"Wyzwanie poziom 2 - 1",
+"Wyzwanie poziom 2 - 2"
+];
+
+const wyzwaniaO_lvl2 = [
+"Wyzwanie poziom 2 - 1",
+"Wyzwanie poziom 2 - 2"
 ];
 
 function losuj(kto) {
-    let lista = kto === 'N' ? wyzwaniaN : wyzwaniaO;
+    let lista;
+
+    if (poziom === 1) {
+        lista = kto === 'N' ? wyzwaniaN_lvl1 : wyzwaniaO_lvl1;
+    } else {
+        lista = kto === 'N' ? wyzwaniaN_lvl2 : wyzwaniaO_lvl2;
+    }
 
     if (lista.length === 0) {
         document.getElementById("result").innerText = "Brak wyzwań 💀";
@@ -144,6 +178,29 @@ function losuj(kto) {
 
     const random = Math.floor(Math.random() * lista.length);
     document.getElementById("result").innerText = lista[random];
+}
+
+function togglePoziom() {
+    poziom = poziom === 1 ? 2 : 1;
+
+    const btn = document.getElementById("poziomBtn");
+
+    if (poziom === 2) {
+        btn.innerText = "poziom niżej";
+        document.body.style.background = "#1a0000";
+
+        document.querySelectorAll(".btn").forEach(b => {
+            b.style.background = "#5a0000";
+        });
+
+    } else {
+        btn.innerText = "poziom wyżej";
+        document.body.style.background = "#111";
+
+        document.querySelectorAll(".btn").forEach(b => {
+            b.style.background = "#222";
+        });
+    }
 }
 
 </script>
