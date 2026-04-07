@@ -2,21 +2,18 @@
 <html class="staticrypt-html">
     <head>
         <meta charset="utf-8" />
-        <title>Strona Chroniona</title>
+        <title>Strefa Prywatna</title>
         <link rel="icon" type="image/png" href="/lock.png">
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-        <meta http-equiv="cache-control" content="max-age=0" />
-        <meta http-equiv="cache-control" content="no-cache" />
-        <meta http-equiv="expires" content="0" />
-        <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
-        <meta http-equiv="pragma" content="no-cache" />
+        
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
 
         <style>
-            /* OGÓLNE USTAWIENIA TŁA */
+            /* OGÓLNE USTAWIENIA */
             .staticrypt-html, .staticrypt-body {
                 height: 100%;
                 margin: 0;
+                background-color: #0a0a0a;
             }
 
             .staticrypt-content {
@@ -24,151 +21,132 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                /* TWOJE ZDJĘCIE TŁA */
-                background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('rosesbg.jpg');
+                font-family: 'Poppins', sans-serif;
+                /* Tło z głębokim gradientem */
+                background: radial-gradient(circle at center, rgba(80, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.9) 100%), url('rosesbg.jpg');
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
             }
 
-            /* KARTA FORMULARZA (SZKLISTY EFEKT) */
+            /* KARTA FORMULARZA */
             .staticrypt-page {
                 width: 100%;
-                max-width: 400px;
+                max-width: 420px;
                 padding: 20px;
                 box-sizing: border-box;
             }
 
             .staticrypt-form {
-                background: rgba(25, 25, 25, 0.8); /* Ciemne, półprzezroczyste tło */
-                backdrop-filter: blur(12px); /* Rozmycie tła za formularzem */
-                -webkit-backdrop-filter: blur(12px);
-                padding: 40px;
-                border-radius: 20px;
+                background: rgba(15, 15, 15, 0.85);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                padding: 50px 40px;
+                border-radius: 30px;
                 text-align: center;
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                /* Subtelna czerwona poświata */
+                box-shadow: 0 0 40px rgba(139, 0, 0, 0.3);
+                border: 1px solid rgba(139, 0, 0, 0.4);
                 color: #ffffff;
             }
 
             .staticrypt-title {
-                font-size: 1.8em;
-                font-weight: 600;
-                margin-bottom: 20px;
+                font-family: 'Playfair Display', serif;
+                font-size: 2.2em;
+                font-style: italic;
+                margin-bottom: 10px;
                 display: block;
+                color: #e6b8af; /* Przygaszony róż/złoto */
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
             }
 
             .staticrypt-instructions {
-                font-size: 14px;
-                color: #bbb;
-                margin-bottom: 25px;
-                line-height: 1.5;
+                font-size: 15px;
+                color: #a0a0a0;
+                margin-bottom: 30px;
+                letter-spacing: 0.5px;
             }
 
             /* STYLE DLA INPUTÓW */
             .staticrypt-password-container {
                 position: relative;
-                margin-bottom: 20px;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 10px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                transition: 0.3s;
+                margin-bottom: 25px;
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 12px;
+                border: 1px solid rgba(139, 0, 0, 0.3);
+                transition: 0.4s;
             }
 
             .staticrypt-password-container:focus-within {
-                border-color: #ffffff;
-                background: rgba(255, 255, 255, 0.1);
+                border-color: #8b0000;
+                background: rgba(139, 0, 0, 0.1);
+                box-shadow: 0 0 10px rgba(139, 0, 0, 0.2);
             }
 
-            .staticrypt-form input[type="password"],
-            .staticrypt-form input[type="text"] {
+            .staticrypt-form input[type="password"] {
                 background: transparent;
                 border: 0;
                 box-sizing: border-box;
                 font-size: 16px;
                 outline: 0;
-                padding: 15px;
+                padding: 18px;
                 width: 100%;
                 color: #ffffff;
+                text-align: center;
+                letter-spacing: 4px;
             }
 
-            .staticrypt-toggle-password-visibility {
-                cursor: pointer;
-                height: 20px;
-                opacity: 0.5;
-                padding: 12px;
-                position: absolute;
-                right: 0;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 20px;
-                filter: invert(1); /* Zmienia kolor ikonki na biały */
-            }
-
-            /* PRZYCISK */
+            /* PRZYCISK Z PULSACJĄ */
             .staticrypt-decrypt-button {
                 text-transform: uppercase;
-                letter-spacing: 1px;
-                font-weight: bold;
+                letter-spacing: 2px;
+                font-weight: 600;
                 outline: 0;
-                background: #ffffff;
+                background: linear-gradient(45deg, #4b0000, #8b0000);
                 width: 100%;
-                border: 0;
-                padding: 15px;
-                color: #000000;
-                font-size: 14px;
+                border: 1px solid rgba(255,255,255,0.1);
+                padding: 16px;
+                color: #ffffff;
+                font-size: 13px;
                 cursor: pointer;
-                border-radius: 10px;
-                transition: 0.3s;
+                border-radius: 50px;
+                transition: 0.4s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
             }
 
             .staticrypt-decrypt-button:hover {
-                background: #e0e0e0;
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+                transform: scale(1.02);
+                background: linear-gradient(45deg, #600000, #a80000);
+                box-shadow: 0 0 20px rgba(139, 0, 0, 0.5);
             }
 
-            .staticrypt-decrypt-button:active {
-                transform: translateY(0);
-            }
-
-            /* CHECKBOX "ZAPAMIĘTAJ MNIE" */
+            /* CHECKBOX */
             label.staticrypt-remember {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin-bottom: 20px;
+                margin-bottom: 25px;
                 font-size: 13px;
-                color: #999;
+                color: #888;
                 cursor: pointer;
+                font-style: italic;
             }
 
             .staticrypt-remember input[type="checkbox"] {
                 margin-right: 10px;
-                accent-color: #ffffff; /* Kolor zaznaczenia */
-            }
-
-            /* SPINNER I UKRYWANIE */
-            .hidden { display: none !important; }
-
-            .staticrypt-spinner {
-                width: 2.5rem;
-                height: 2.5rem;
-                border: 3px solid rgba(255,255,255,0.2);
-                border-right-color: #ffffff;
-                border-radius: 50%;
-                animation: spinner-border 0.75s linear infinite;
-            }
-
-            @keyframes spinner-border {
-                100% { transform: rotate(360deg); }
+                accent-color: #8b0000;
             }
 
             .staticrypt-hr {
                 border: 0;
-                border-top: 1px solid rgba(255,255,255,0.1);
-                margin: 25px 0;
+                border-top: 1px solid rgba(139, 0, 0, 0.2);
+                margin: 30px 0;
+            }
+
+            /* Spinner dopasowany do klimatu */
+            .staticrypt-spinner {
+                border: 3px solid rgba(139, 0, 0, 0.1);
+                border-right-color: #8b0000;
             }
         </style>
     </head>
@@ -182,8 +160,8 @@
             <div class="staticrypt-page">
                 <div class="staticrypt-form">
                     <div class="staticrypt-instructions">
-                        <p class="staticrypt-title">🌸 Witaj 🌸</p>
-                        <p></p>
+                        <span class="staticrypt-title">Tylko dla Twoich oczu</span>
+                        <p>Podaj hasło, aby odkryć tajemnicę...</p>
                     </div>
 
                     <hr class="staticrypt-hr" />
@@ -194,24 +172,17 @@
                                 id="staticrypt-password"
                                 type="password"
                                 name="password"
-                                placeholder="Hasło"
+                                placeholder="••••••••"
                                 autofocus
-                            />
-
-                            <img
-                                class="staticrypt-toggle-password-visibility"
-                                alt="template_toggle_show"
-                                title="template_toggle_show"
-                                src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDAgNTEyIj48IS0tIUZvbnQgQXdlc29tZSBGcmVlIDYuNS4yIGJ5IEBmb250YXdlc29tZSAtIGh0dHBzOi8vZm9udGF3ZXNvbWUuY29tIExpY2Vuc2UgLSBodHRwczovL2ZvbnRhd2Vzb21lLmNvbS9saWNlbnNlL2ZyZWUgQ29weXJpZ2h0IDIwMjQgRm9udGljb25zLCBJbmMuLS0+PHBhdGggZD0iTTM4LjggNS4xQzI4LjQtMy4xIDEzLjMtMS4yIDUuMSA5LjJTLTEuMiAzNC43IDkuMiA0Mi45bDU5MiA0NjRjMTAuNCA4LjIgMjUuNSA2LjMgMzMuNy00LjFzNi4zLTI1LjUtNC4xLTMzLjdMNTI1LjYgMzg2LjdjMzkuNi00MC42IDY2LjQtODYuMSA3OS45LTExOC40YzMuMy03LjkgMy4zLTE2LjcgMC0yNC42Yy0xNC45LTM1LjctNDYuMi04Ny43LTkzLTEzMS4xQzQ2NS41IDY4LjggNDAwLjggMzIgMzIwIDMyYy02OC4yIDAtMTI1IDI2LjMtMTY5LjMgNjAuOEwzOC44IDUuMXpNMjIzLjEgMTQ5LjVDMjQ4LjYgMTI2LjIgMjgyLjcgMTEyIDMyMCAxMTJjNzkuNSAwIDE0NCA2NC41IDE0NCAxNDRjMCAyNC45LTYuMyA0OC4zLTE3LjQgNjguN0w0MDggMjk0LjVjOC40LTE5LjMgMTAuNi00MS40IDQuOC02My4zYy0xMS4xLTQxLjUtNDcuOC02OS40LTg4LjYtNzEuMWMtNS44LS4yLTkuMiA2LjEtNy40IDExLjdjMi4xIDYuNCAzLjMgMTMuMiAzLjMgMjAuM2MwIDEwLjItMi40IDE5LjgtNi42IDI4LjNsLTkwLjMtNzAuOHpNMzczIDM4OS45Yy0xNi40IDYuNS0zNC4zIDEwLjEtNTMgMTAuMWMtNzkuNSAwLTE0NC02NC41LTE0NC0xNDRjMC02LjkgLjUtMTMuNiAxLjQtMjAuMkw4My4xIDE2MS41QzYwLjMgMTkxLjIgNDQgMjIwLjggMzQuNSAyNDMuN2MtMy4zIDcuOS0zLjMgMTYuNyAwIDI0LjZjMTQuOSAzNS43IDQ2LjIgODcuNyA5MyAxMzEuMUMxNzQuNSA0NDMuMiAyMzkuMiA0ODAgMzIwIDQ4MGM0Ny44IDAgODkuOS0xMi45IDEyNi4yLTMyLjVMMzczIDM4OS45eiIvPjwvc3ZnPg=="
                             />
                         </div>
 
-                        <label id="staticrypt-remember-label" class="staticrypt-remember hidden">
+                        <label id="staticrypt-remember-label" class="staticrypt-remember">
                             <input id="staticrypt-remember" type="checkbox" name="remember" />
-                            Zapamiętaj mnie :)
+                            Zostań ze mną na dłużej
                         </label>
 
-                        <input type="submit" class="staticrypt-decrypt-button" value="ZALOGUJ" />
+                        <input type="submit" class="staticrypt-decrypt-button" value="Odkryj" />
                     </form>
                 </div>
             </div>
