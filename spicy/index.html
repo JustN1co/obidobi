@@ -26,13 +26,13 @@
                 justify-content: center;
                 font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                 /* TWOJE ZDJĘCIE TŁA */
-                background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(40, 0, 0, 0.6)), url('spicytlo.jpg');
+                background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('spicytlo.jpg');
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
             }
 
-            /* KARTA FORMULARZA (SPICY GLASSMORPHISM) */
+            /* KARTA FORMULARZA (SZKLISTY EFEKT) */
             .staticrypt-page {
                 width: 100%;
                 max-width: 400px;
@@ -41,30 +41,27 @@
             }
 
             .staticrypt-form {
-                background: rgba(20, 0, 0, 0.85); /* Bardzo ciemny burgund, półprzezroczysty */
-                backdrop-filter: blur(15px);
-                -webkit-backdrop-filter: blur(15px);
+                background: rgba(25, 25, 25, 0.8); /* Ciemne, półprzezroczyste tło */
+                backdrop-filter: blur(12px); /* Rozmycie tła za formularzem */
+                -webkit-backdrop-filter: blur(12px);
                 padding: 40px;
-                border-radius: 25px;
+                border-radius: 20px;
                 text-align: center;
-                /* Czerwona poświata wokół okna */
-                box-shadow: 0 0 30px rgba(139, 0, 0, 0.5); 
-                border: 1px solid rgba(255, 0, 0, 0.2);
+                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 color: #ffffff;
             }
 
             .staticrypt-title {
-                font-size: 2em;
-                font-weight: 700;
-                margin-bottom: 15px;
+                font-size: 1.8em;
+                font-weight: 600;
+                margin-bottom: 20px;
                 display: block;
-                color: #ff4d4d; /* Czerwieńszy tytuł */
-                text-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
             }
 
             .staticrypt-instructions {
                 font-size: 14px;
-                color: #cca3a3;
+                color: #bbb;
                 margin-bottom: 25px;
                 line-height: 1.5;
             }
@@ -73,16 +70,15 @@
             .staticrypt-password-container {
                 position: relative;
                 margin-bottom: 20px;
-                background: rgba(255, 255, 255, 0.07);
-                border-radius: 12px;
-                border: 1px solid rgba(255, 77, 77, 0.2);
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 10px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 transition: 0.3s;
             }
 
             .staticrypt-password-container:focus-within {
-                border-color: #ff4d4d;
-                background: rgba(255, 255, 255, 0.12);
-                box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+                border-color: #ffffff;
+                background: rgba(255, 255, 255, 0.1);
             }
 
             .staticrypt-form input[type="password"],
@@ -100,67 +96,79 @@
             .staticrypt-toggle-password-visibility {
                 cursor: pointer;
                 height: 20px;
-                opacity: 0.6;
+                opacity: 0.5;
                 padding: 12px;
                 position: absolute;
                 right: 0;
                 top: 50%;
                 transform: translateY(-50%);
                 width: 20px;
-                filter: invert(1) sepia(1) saturate(5) hue-rotate(340deg); /* Zmiana ikony na czerwonawą */
+                filter: invert(1); /* Zmienia kolor ikonki na biały */
             }
 
-            /* PRZYCISK (W OGNISTYM KOLORZE) */
+            /* PRZYCISK */
             .staticrypt-decrypt-button {
                 text-transform: uppercase;
-                letter-spacing: 2px;
+                letter-spacing: 1px;
                 font-weight: bold;
                 outline: 0;
-                background: linear-gradient(45deg, #8b0000, #ff4d4d);
+                background: #ffffff;
                 width: 100%;
                 border: 0;
-                padding: 16px;
-                color: #ffffff;
+                padding: 15px;
+                color: #000000;
                 font-size: 14px;
                 cursor: pointer;
-                border-radius: 12px;
-                transition: 0.4s;
-                box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4);
+                border-radius: 10px;
+                transition: 0.3s;
             }
 
             .staticrypt-decrypt-button:hover {
-                background: linear-gradient(45deg, #ff4d4d, #8b0000);
+                background: #e0e0e0;
                 transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(255, 77, 77, 0.5);
+                box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
             }
 
-            /* CHECKBOX */
+            .staticrypt-decrypt-button:active {
+                transform: translateY(0);
+            }
+
+            /* CHECKBOX "ZAPAMIĘTAJ MNIE" */
             label.staticrypt-remember {
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 margin-bottom: 20px;
                 font-size: 13px;
-                color: #cca3a3;
+                color: #999;
                 cursor: pointer;
             }
 
             .staticrypt-remember input[type="checkbox"] {
                 margin-right: 10px;
-                accent-color: #ff4d4d;
+                accent-color: #ffffff; /* Kolor zaznaczenia */
             }
+
+            /* SPINNER I UKRYWANIE */
+            .hidden { display: none !important; }
 
             .staticrypt-spinner {
                 width: 2.5rem;
                 height: 2.5rem;
-                border: 3px solid rgba(255, 77, 77, 0.2);
-                border-right-color: #ff4d4d;
+                border: 3px solid rgba(255,255,255,0.2);
+                border-right-color: #ffffff;
                 border-radius: 50%;
                 animation: spinner-border 0.75s linear infinite;
             }
 
             @keyframes spinner-border {
                 100% { transform: rotate(360deg); }
+            }
+
+            .staticrypt-hr {
+                border: 0;
+                border-top: 1px solid rgba(255,255,255,0.1);
+                margin: 25px 0;
             }
         </style>
     </head>
