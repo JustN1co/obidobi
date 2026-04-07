@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/miniaturka.png">
     <title>TikTok Obidobi</title>
+
     <style>
         html, body {
             margin: 0;
@@ -14,6 +15,53 @@
             overflow: hidden;
             font-family: Arial, sans-serif;
             color: #fff;
+        }
+
+        /* LOGIN */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-box {
+            background: #111;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .login-box input {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 220px;
+            background: #222;
+            border: none;
+            color: white;
+            border-radius: 6px;
+        }
+
+        .login-box button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #444;
+            color: white;
+            cursor: pointer;
+        }
+
+        #error {
+            color: red;
+            display: none;
+            font-size: 12px;
         }
 
         #backButton {
@@ -67,73 +115,100 @@
 </head>
 <body>
 
-    <button id="backButton" onclick="window.location.href='https://obidobi.pl'">Wróć</button>
-
-    <div id="videosWrapper">
-        <div class="video-container">
-            <video src="1.mp4" autoplay muted loop playsinline></video>
-            <div class="description">Every diva beats her bf 🤷‍♀️</div>
-        </div>
-        <div class="video-container">
-            <video src="2.mp4" autoplay muted loop playsinline></video>
-            <div class="description">Wziął mnie tylko na SPACER,
-                a wróciłam wyczerpana...</div>
-        </div>
-        <div class="video-container">
-            <video src="3.mp4" autoplay muted loop playsinline></video>
-            <div class="description">😠😛</div>
-        </div>
-        <div class="video-container">
-            <video src="4.mp4" autoplay muted loop playsinline></video>
-            <div class="description">Jestem dla niej jak benzoo</div>
-        </div>
-        <div class="video-container">
-            <video src="5.mp4" autoplay muted loop playsinline></video>
-            <div class="description">freaky ahh</div>
-        </div>
-        <div class="video-container">
-            <video src="6.mp4" autoplay muted loop playsinline></video>
-            <div class="description">What do y'all think? #SLAAAAY</div>
-        </div>
-        <div class="video-container">
-            <video src="7.mp4" autoplay muted loop playsinline></video>
-            <div class="description">masz BANAAAA</div>
-        </div>
-        <div class="video-container">
-            <video src="8.mp4" autoplay muted loop playsinline></video>
-            <div class="description">mm mm :c</div>
-        </div>
-        <div class="video-container">
-            <video src="9.mp4" autoplay muted loop playsinline></video>
-            <div class="description">kocham mojego chlopaka, alkohol i palenie</div>
-        </div>
-        <div class="video-container">
-            <video src="10.mp4" autoplay muted loop playsinline></video>
-            <div class="description">A wy co lamusy? Pewnie siedzicie
-                na piździe w domu 😂</div>
-        </div>
+<!-- LOGIN -->
+<div id="loginScreen">
+    <div class="login-box">
+        <h2>🔒 Prywatne</h2>
+        <input type="text" id="login" placeholder="Login">
+        <input type="password" id="password" placeholder="Hasło">
+        <button onclick="checkLogin()">Wejdź</button>
+        <p id="error">Zły login lub hasło</p>
     </div>
+</div>
 
-    <script>
-        const videos = document.querySelectorAll('video');
+<!-- CONTENT -->
+<div id="content" style="display:none; width:100%; height:100%;">
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting) {
-                    // Wideo w centrum ekranu – odtwarzaj i włącz dźwięk
-                    entry.target.muted = false;
-                    entry.target.play();
-                } else {
-                    // Wideo poza ekranem – wycisz i pauzuj
-                    entry.target.muted = true;
-                    entry.target.pause();
-                }
-            });
-        }, { threshold: 0.6 }); // 60% wideo musi być widoczne
+<button id="backButton" onclick="window.location.href='https://obidobi.pl'">Wróć</button>
 
-        videos.forEach(video => observer.observe(video));
-    </script>
+<div id="videosWrapper">
+    <div class="video-container">
+        <video src="1.mp4" autoplay muted loop playsinline></video>
+        <div class="description">Every diva beats her bf 🤷‍♀️</div>
+    </div>
+    <div class="video-container">
+        <video src="2.mp4" autoplay muted loop playsinline></video>
+        <div class="description">Wziął mnie tylko na SPACER, a wróciłam wyczerpana...</div>
+    </div>
+    <div class="video-container">
+        <video src="3.mp4" autoplay muted loop playsinline></video>
+        <div class="description">😠😛</div>
+    </div>
+    <div class="video-container">
+        <video src="4.mp4" autoplay muted loop playsinline></video>
+        <div class="description">Jestem dla niej jak benzoo</div>
+    </div>
+    <div class="video-container">
+        <video src="5.mp4" autoplay muted loop playsinline></video>
+        <div class="description">freaky ahh</div>
+    </div>
+    <div class="video-container">
+        <video src="6.mp4" autoplay muted loop playsinline></video>
+        <div class="description">What do y'all think? #SLAAAAY</div>
+    </div>
+    <div class="video-container">
+        <video src="7.mp4" autoplay muted loop playsinline></video>
+        <div class="description">masz BANAAAA</div>
+    </div>
+    <div class="video-container">
+        <video src="8.mp4" autoplay muted loop playsinline></video>
+        <div class="description">mm mm :c</div>
+    </div>
+    <div class="video-container">
+        <video src="9.mp4" autoplay muted loop playsinline></video>
+        <div class="description">kocham mojego chlopaka, alkohol i palenie</div>
+    </div>
+    <div class="video-container">
+        <video src="10.mp4" autoplay muted loop playsinline></video>
+        <div class="description">A wy co lamusy? Pewnie siedzicie na piździe w domu 😂</div>
+    </div>
+</div>
+
+</div>
+
+<script>
+
+// LOGIN
+function checkLogin() {
+    const login = document.getElementById("login").value;
+    const password = document.getElementById("password").value;
+
+    if (login === "Obidobi" && password === "Obidobi123") {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("content").style.display = "block";
+    } else {
+        document.getElementById("error").style.display = "block";
+    }
+}
+
+// VIDEO LOGIC (twoje, nietknięte)
+const videos = document.querySelectorAll('video');
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if(entry.isIntersecting) {
+            entry.target.muted = false;
+            entry.target.play();
+        } else {
+            entry.target.muted = true;
+            entry.target.pause();
+        }
+    });
+}, { threshold: 0.6 });
+
+videos.forEach(video => observer.observe(video));
+
+</script>
 
 </body>
 </html>
-
