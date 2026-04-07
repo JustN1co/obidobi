@@ -18,6 +18,53 @@ body {
     transition: 0.3s;
 }
 
+/* LOGIN */
+#loginScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.login-box {
+    background: #1c1c1c;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.login-box input {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    width: 220px;
+    background: #222;
+    border: none;
+    color: white;
+    border-radius: 6px;
+}
+
+.login-box button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #444;
+    color: white;
+    cursor: pointer;
+}
+
+#error {
+    color: red;
+    display: none;
+    font-size: 12px;
+}
+
 /* powrót */
 .back {
     position: absolute;
@@ -82,6 +129,20 @@ body {
 
 <body>
 
+<!-- LOGIN -->
+<div id="loginScreen">
+    <div class="login-box">
+        <h2>🔒 Dostęp prywatny</h2>
+        <input type="text" id="login" placeholder="Login">
+        <input type="password" id="password" placeholder="Hasło">
+        <button onclick="checkLogin()">Wejdź</button>
+        <p id="error">Zły login lub hasło</p>
+    </div>
+</div>
+
+<!-- RESZTA STRONY -->
+<div id="content" style="display:none; width:100%; height:100%;">
+
 <div class="back">
     <a href="/">← powrót</a>
 </div>
@@ -101,96 +162,30 @@ body {
     </div>
 </div>
 
+</div>
+
 <script>
+
+// LOGIN
+function checkLogin() {
+    const login = document.getElementById("login").value;
+    const password = document.getElementById("password").value;
+
+    if (login === "Obidobi" && password === "Obidobi123") {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("content").style.display = "block";
+    } else {
+        document.getElementById("error").style.display = "block";
+    }
+}
 
 let poziom = 1;
 
-// POZIOM 1
-const wyzwaniaN_lvl1 = [
-"Całuj powoli partnerkę podduszając ją w międzyczasie",
-"Przejedź językiem od szyji do ust partnerki, po czym ją pocałuj",
-"Wyliż szyję partnerki",
-"Rozbierz partnerkę do bielizny powoli patrząc jej w oczy",
-"Wyliż krocze partnerki przez bieliznę",
-"Zrób partnerce masaż miejsc intymnych przez minutę używając tylko rąk",
-"Użyj ust do ściągnięcia majtek partnerki",
-"Zrób 3 malinki na ciele partnerki",
-"Poliż wewnetrzną część ud partnerki",
-"Zasłoń oczy partnerce, po czym wykonaj wybrany przez siebie ruch",
-"Wymasuj partnerce pośladki używając do tego balsamu/olejku do ciała",
-"Wycałuj ciało partnerki od karku do pośladków, gdy ta leży na brzuchu",
-"Ściągnij stanik partnerce podczas całowania",
-"Dotykaj partnerkę w każdym miejscu, poza tym, którego naprawdę pragnie",
-"Zdominuj partnerkę przez minutę",
-"Pocałuj partnerkę w 3 różne sposoby",
-"Rozbierz się do bielizny na 2 rundy",
-"Ukaraj partnerkę klapsem",
-"SKIP - omija cię wyzwanie",
-"Wyliż sutki partnerce mając przy tym zamknięte oczy przez całe wyzwanie",
-"Wyliż bitą śmietanę z ciała partnerki"
-];
-
-const wyzwaniaO_lvl1 = [
-"Przeciągnij się jak kotek i pokaż swoje ciało jak na wystawie",
-"Zrób 3 malinki na ciele partnera",
-"Usiądź tyłem na kolanach partnera oraz wykonaj taniec erotyczny ocierając się tyłkiem",
-"Wykonaj masaż erotyczny partnerowi używając do tego tylko rąk",
-"Usiądź na partnetrze oraz ocieraj się o niego przez minutę",
-"Wyliż dłoń partnera tak, jakby było to coś więcej",
-"Zatwerkuj na kroczu partnera w samej bieliźnie",
-"Wyliż szyję partnera",
-"SKIP - omija cię wyzwanie",
-"Wykonaj taniec erotyczny w samej bieliźnie nie dotykając partnera oraz vice versa",
-"Kuś partnera przez 30 sekund, partner nie może cię dotykać w międzyczasie",
-"Rozbierz się do bielizny na 2 rundy",
-"Napluj partnerowi do ust",
-"Wyliż bitą śmietanę z ciała partnera",
-"Wymasuj krocze partnera przez bieliznę stopami",
-"Wypnij się jak najbardziej oraz zatwerkuj na oczach partnera w samej bieliźnie",
-"Rzuć się na partnera podduszając go w międzyczasie oraz zacznij go namiętnie całować",
-"Rościągaj się jakbyś robiła yogę, ale w samej bieliźnie",
-"Zdominuj partnera na 30 sekund siedząc lub leżąc na nim",
-"Pocałuj partnera w 3 różne sposoby",
-"Pozwól się posmarować olejkem do ciała lub balsamem przez partnera"
-];
-
-// POZIOM 2
-const wyzwaniaN_lvl2 = [
-"Zatrzymaj partnerkę w czasie - podczas gdy partnerka nie może się ruszyć, możesz zrobić z nią co tylko zechesz przez 30 sekund",
-"Zwiąż oczy partnerce oraz zaskocz ją",
-"Rzuć się na partnerkę oraz rozbierz ją podczas całowania",
-"Rób palcówkę partnerce dopóki nie zajęczy",
-"Napisz językiem swoje imię na waginie partnerki",
-"Udawaj, że nie znasz partnerki i chcesz jej zrobić palcówkę za wszelką cenę, choć ta tego nie chce",
-"Przejedź językiem po nagim ciele partnerki od stóp do szyji wliczając miejsca intymne",
-"Zamknij oczy partnerce oraz wykonaj wybrany przez siebie ruch, partnerka nie może mieć na sobie żadnych ubrań",
-"69",
-"Sprawiaj przyjemność partnerce ręką oraz językiem w tym samym czasie",
-"Zwiąż oraz zaknebluj partnerkę, tak, aby jej nogi były rozłożone, po czym zrób jej palcówkę",
-"Powoli obmacuj oraz patrz prosto w oczy partnerce podduszając ją w międzyczasie",
-"Wycałuj całe ciało nagiej partnerki poza tymi miejscami, których naprawdę pragnie",
-"Sprawiaj przyjemność partnerce masując jej sutki oraz liżąc szyję na raz",
-"Nie możesz się ruszyć ani wydać żadnego dźwięku podczas, gdy partnerka robi z tobą co tylko zechce",
-"SKIP - omija cię wyzwanie"
-];
-
-const wyzwaniaO_lvl2 = [
-"Zrób partnerowi przyjemność stopami",
-"Zatwerkuj nago siedząc na partnerze",
-"Zaknebluj stringami partnera oraz wykonaj wybrany przez siebie ruch",
-"Zwiąż oczy partnera oraz zaskocz go",
-"Wykonaj nagi taniec erotyczny bez możliwości dotykania partnera oraz vice versa",
-"Usiądź partnerowi na twarzy",
-"Odegraj rolę niegrzecznej uczennicy, która chce uwieść nauczyciela - partnera",
-"Weź go jak najgłębiej do gardła na 10 sekund",
-"69",
-"Napluj na swoje cycki, po czym zmuś partnera, aby je wylizał",
-"Pokaż partnerowi co oznacza prawdziwa dominacja; stań na nim, zwiąż go, podduszaj. Ogranicza cię tylko twoja fantazja",
-"Zrób nagi pokaz partnerowi 2 palcami",
-"SKIP - omija cię wyzwanie",
-"Zaknebluj partnera stringami oraz zwiąż mu ręce, po czym kuś go tańcem erotycznym lub pokazem ciała",
-"Liż powoli samego napletka, tylko tak, żeby bardziej podniecić partnera"
-];
+// (twoje wyzwania zostają bez zmian)
+const wyzwaniaN_lvl1 = [...]; // skrócone tutaj, u ciebie zostają jak były
+const wyzwaniaO_lvl1 = [...];
+const wyzwaniaN_lvl2 = [...];
+const wyzwaniaO_lvl2 = [...];
 
 function losuj(kto) {
     let lista;
