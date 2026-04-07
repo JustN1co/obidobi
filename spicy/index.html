@@ -98,12 +98,24 @@ body {
 
 /* kontener */
 .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* środek pionowo */
+    align-items: center;     /* środek poziomo */
     text-align: center;
+}
+
+/* wynik */
+.result {
+    font-size: 32px; /* większy tekst */
+    max-width: 600px;
+    margin-bottom: 60px;
 }
 
 /* przyciski */
 .buttons {
-    margin-bottom: 40px;
+    margin-top: 40px; /* niżej */
 }
 
 .btn {
@@ -117,12 +129,6 @@ body {
     background: #222;
     color: white;
     transition: 0.3s;
-}
-
-/* wynik */
-.result {
-    font-size: 22px;
-    max-width: 500px;
 }
 </style>
 </head>
