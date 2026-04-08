@@ -13,7 +13,7 @@
             background-color: #000;
             height: 100%;
             overflow: hidden;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: #fff;
         }
 
@@ -21,61 +21,86 @@
             position: fixed;
             top: 15px;
             left: 15px;
-            padding: 10px 15px;
-            background-color: rgba(0,0,0,0.6);
-            border: none;
+            padding: 10px 18px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
-            font-size: 16px;
+            font-size: 14px;
+            font-weight: bold;
             cursor: pointer;
             z-index: 1000;
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: background 0.3s;
+        }
+
+        #backButton:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
         /* WIDEO KONTENER */
-        .video-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            scroll-snap-align: start;
-            position: relative;
-            background-color: #000;
-            overflow: hidden;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            cursor: pointer;
-        }
-
-        /* WYGLĄD OPISÓW */
-        .description {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-            padding: 40px 20px 25px 20px;
-            box-sizing: border-box;
-            text-align: left;
-            font-size: 16px;
-            font-weight: 500;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.9);
-            pointer-events: none;
-        }
-
         #videosWrapper {
             height: 100vh;
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
         }
         
         #videosWrapper::-webkit-scrollbar {
             display: none; /* Chrome/Safari */
+        }
+
+        .video-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            background-color: #000;
+        }
+
+        .video-wrapper {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            max-width: 500px; /* Ograniczenie szerokości dla dużych ekranów, by zachować pion */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video {
+            height: 100%;
+            width: 100%;
+            /* KLUCZOWA ZMIANA: contain zamiast cover zachowuje proporcje pionowe */
+            object-fit: contain; 
+            cursor: pointer;
+        }
+
+        /* ODNOWIONY WYGLĄD OPISU */
+        .description {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            /* Delikatny gradient dla czytelności */
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0) 100%);
+            padding: 60px 20px 30px 20px;
+            box-sizing: border-box;
+            text-align: left;
+            pointer-events: none;
+        }
+
+        .description p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.4;
+            color: #efefef;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            max-width: 85%;
         }
     </style>
 </head>
@@ -83,58 +108,77 @@
 
 <div id="content" style="width:100%; height:100%;">
 
-<button id="backButton" onclick="window.location.href='https://obidobi.pl'">Wróć</button>
+<button id="backButton" onclick="window.location.href='https://obidobi.pl'">← Wróć</button>
 
 <div id="videosWrapper">
     <div class="video-container">
-        <video src="1.mp4" autoplay muted loop playsinline></video>
-        <div class="description">Every diva beats her bf 🤷‍♀️</div>
+        <div class="video-wrapper">
+            <video src="1.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>Every diva beats her bf 🤷‍♀️</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="2.mp4" autoplay muted loop playsinline></video>
-        <div class="description">Wziął mnie tylko na SPACER, a wróciłam wyczerpana...</div>
+        <div class="video-wrapper">
+            <video src="2.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>Wziął mnie tylko na SPACER, a wróciłam wyczerpana...</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="3.mp4" autoplay muted loop playsinline></video>
-        <div class="description">😠😛</div>
+        <div class="video-wrapper">
+            <video src="3.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>😠😛</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="4.mp4" autoplay muted loop playsinline></video>
-        <div class="description">Jestem dla niej jak benzoo</div>
+        <div class="video-wrapper">
+            <video src="4.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>Jestem dla niej jak benzoo</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="5.mp4" autoplay muted loop playsinline></video>
-        <div class="description">freaky ahh</div>
+        <div class="video-wrapper">
+            <video src="5.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>freaky ahh</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="6.mp4" autoplay muted loop playsinline></video>
-        <div class="description">What do y'all think? #SLAAAAY</div>
+        <div class="video-wrapper">
+            <video src="6.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>What do y'all think? #SLAAAAY</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="7.mp4" autoplay muted loop playsinline></video>
-        <div class="description">masz BANAAAA</div>
+        <div class="video-wrapper">
+            <video src="7.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>masz BANAAAA</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="8.mp4" autoplay muted loop playsinline></video>
-        <div class="description">mm mm :c</div>
+        <div class="video-wrapper">
+            <video src="8.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>mm mm :c</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="9.mp4" autoplay muted loop playsinline></video>
-        <div class="description">kocham mojego chlopaka, alkohol i palenie</div>
+        <div class="video-wrapper">
+            <video src="9.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>kocham mojego chlopaka, alkohol i palenie</p></div>
+        </div>
     </div>
     <div class="video-container">
-        <video src="10.mp4" autoplay muted loop playsinline></video>
-        <div class="description">A wy co lamusy? Pewnie siedzicie na piździe w domu 😂</div>
+        <div class="video-wrapper">
+            <video src="10.mp4" autoplay muted loop playsinline></video>
+            <div class="description"><p>A wy co lamusy? Pewnie siedzicie na piździe w domu 😂</p></div>
+        </div>
     </div>
 </div>
 
 </div>
 
 <script>
-// LOGIKA WIDEO
 const videos = document.querySelectorAll('video');
 
-// Pauzowanie kliknięciem na ekranie
+// Pauzowanie kliknięciem
 videos.forEach(video => {
     video.addEventListener('click', () => {
         if (video.paused) {
@@ -145,27 +189,27 @@ videos.forEach(video => {
     });
 });
 
-// Autoplay przy scrollowaniu
+// Autoplay i automatyczne odciszanie przy przewijaniu
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
+        const video = entry.target;
         if(entry.isIntersecting) {
-            entry.target.muted = false; 
-            
-            let playPromise = entry.target.play();
+            video.muted = false; 
+            let playPromise = video.play();
             if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log("Autoplay wymaga interakcji użytkownika.");
+                playPromise.catch(() => {
+                    // W razie blokady przeglądarki
+                    console.log("Kliknij, aby odtworzyć dźwięk");
                 });
             }
         } else {
-            entry.target.muted = true;
-            entry.target.pause();
+            video.pause();
+            video.currentTime = 0; // Resetuj do początku przy przewinięciu dalej
         }
     });
-}, { threshold: 0.6 });
+}, { threshold: 0.7 });
 
 videos.forEach(video => observer.observe(video));
-
 </script>
 
 </body>
