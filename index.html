@@ -387,11 +387,34 @@
           <p class="info-card-value">19/08/2024</p>
           <p class="info-card-sub">każdy dzień z tobą to prezent</p>
         </div>
-        <div class="info-card">
-          <p class="info-card-eyebrow">Twoje urodziny</p>
-          <p class="info-card-value">19 🎂</p>
-          <p class="info-card-sub">wszystkiego najlepszego, Obidobi</p>
-        </div>
+        <div class="info-card" id="timer-card">
+  <p class="info-card-eyebrow">Razem już</p>
+  <p class="info-card-value" id="timer-days" style="font-size:1.6rem;">…</p>
+  <p class="info-card-sub" id="timer-hms">ładowanie…</p>
+</div>
+
+<script>
+  (function() {
+    var start = new Date('2024-08-19T00:00:00');
+    function update() {
+      var now = new Date();
+      var diff = now - start;
+      var totalSec = Math.floor(diff / 1000);
+      var sec  = totalSec % 60;
+      var min  = Math.floor(totalSec / 60) % 60;
+      var hrs  = Math.floor(totalSec / 3600) % 24;
+      var days = Math.floor(totalSec / 86400);
+      document.getElementById('timer-days').textContent =
+        days + ' dni';
+      document.getElementById('timer-hms').textContent =
+        String(hrs).padStart(2,'0') + 'h ' +
+        String(min).padStart(2,'0') + 'm ' +
+        String(sec).padStart(2,'0') + 's';
+    }
+    update();
+    setInterval(update, 1000);
+  })();
+</script>
       </div>
 
     </main>
