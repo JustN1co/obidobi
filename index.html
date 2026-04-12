@@ -22,7 +22,6 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ─── GRAIN OVERLAY ─────────────────────────────────── */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 9998; pointer-events: none;
@@ -42,13 +41,11 @@
       overflow-x: hidden;
     }
 
-    /* ─── CONTENT ───────────────────────────────────────── */
-    #content { 
-      display: block; 
+    #content {
+      display: block;
       animation: fadeUp 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both;
     }
 
-    /* ─── HEADER ────────────────────────────────────────── */
     .site-header {
       position: relative;
       padding: 80px 40px 60px;
@@ -108,11 +105,8 @@
       background: linear-gradient(to left, transparent, var(--blush));
     }
 
-    .ornament-heart {
-      font-size: 14px; color: var(--wine);
-    }
+    .ornament-heart { font-size: 14px; color: var(--wine); }
 
-    /* ─── LAYOUT ────────────────────────────────────────── */
     .page-body {
       display: grid;
       grid-template-columns: 240px 1fr;
@@ -123,7 +117,6 @@
       align-items: start;
     }
 
-    /* ─── SIDEBAR NAV ───────────────────────────────────── */
     .sidebar {
       position: sticky;
       top: 40px;
@@ -139,7 +132,6 @@
     }
 
     .nav-list { list-style: none; }
-
     .nav-list li { margin-bottom: 4px; }
 
     .nav-list a {
@@ -194,10 +186,8 @@
       padding: 0 4px;
     }
 
-    /* ─── MAIN CONTENT ──────────────────────────────────── */
     .main-content { padding-top: 4px; }
 
-    /* ─── PHOTO CARD ────────────────────────────────────── */
     .photo-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -253,7 +243,6 @@
       flex-shrink: 0;
     }
 
-    /* ─── GRID BELOW PHOTO ──────────────────────────────── */
     .cards-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -293,7 +282,6 @@
       margin-top: 6px;
     }
 
-    /* ─── FOOTER ────────────────────────────────────────── */
     .site-footer {
       text-align: center;
       padding: 32px;
@@ -306,24 +294,19 @@
 
     .site-footer span { color: var(--wine); }
 
-    /* ─── ANIMATIONS ────────────────────────────────────── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(22px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ─── RESPONSIVE ────────────────────────────────────── */
     @media (max-width: 720px) {
       .page-body {
         grid-template-columns: 1fr;
         padding: 0 20px 60px;
         gap: 32px;
       }
-
       .sidebar { position: static; }
-
       .site-header { padding: 60px 20px 40px; }
-
       .cards-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -361,7 +344,6 @@
         <li><a href="/przyklad8"><span class="nav-icon">🌸</span>Przykład 8</a></li>
         <li><a href="/przyklad9"><span class="nav-icon">🫶</span>Przykład 9</a></li>
       </ul>
-
       <div class="sidebar-divider"></div>
       <p class="sidebar-note">
         "każda chwila z tobą<br>
@@ -382,15 +364,36 @@
       </div>
 
       <div class="cards-grid">
-        <div class="info-card">
-          <p class="info-card-eyebrow">Razem od</p>
-          <p class="info-card-value">19/08/2024</p>
-          <p class="info-card-sub">każdy dzień z tobą to prezent</p>
+
+        <div class="info-card" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <div>
+            <p class="info-card-eyebrow">Razem od</p>
+            <p class="info-card-value">19/08/2024</p>
+            <p class="info-card-sub">każdy dzień z tobą to prezent</p>
+          </div>
+          <img src="images/cinnamoroll.png" alt="Cinnamoroll"
+               style="width:70px; height:70px; object-fit:contain; flex-shrink:0;">
         </div>
-        <div class="info-card" id="timer-card">
-  <p class="info-card-eyebrow">Razem już</p>
-  <p class="info-card-value" id="timer-days" style="font-size:1.6rem;">…</p>
-  <p class="info-card-sub" id="timer-hms">ładowanie…</p>
+
+        <div class="info-card" id="timer-card" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <div>
+            <p class="info-card-eyebrow">Razem już</p>
+            <p class="info-card-value" id="timer-days" style="font-size:1.6rem;">…</p>
+            <p class="info-card-sub" id="timer-hms">ładowanie…</p>
+          </div>
+          <img src="images/pompompurin.png" alt="Pompompurin"
+               style="width:70px; height:70px; object-fit:contain; flex-shrink:0;">
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    Zrobione z całego serca — <span>dla Obidobi 💖</span>
+  </footer>
+
 </div>
 
 <script>
@@ -404,8 +407,7 @@
       var min  = Math.floor(totalSec / 60) % 60;
       var hrs  = Math.floor(totalSec / 3600) % 24;
       var days = Math.floor(totalSec / 86400);
-      document.getElementById('timer-days').textContent =
-        days + ' dni';
+      document.getElementById('timer-days').textContent = days + ' dni';
       document.getElementById('timer-hms').textContent =
         String(hrs).padStart(2,'0') + 'h ' +
         String(min).padStart(2,'0') + 'm ' +
@@ -415,16 +417,6 @@
     setInterval(update, 1000);
   })();
 </script>
-      </div>
-
-    </main>
-  </div>
-
-  <footer class="site-footer">
-    Zrobione z całego serca — <span>dla Obidobi 💖</span>
-  </footer>
-
-</div>
 
 </body>
 </html>
