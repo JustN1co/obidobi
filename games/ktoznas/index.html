@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kto z nas? - Gra Imprezowa</title>
+    <style>
+        /* RESET I BAZOWE USTAWIENIA */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Mroczne tło z neonowym klimatem */
+            background: linear-gradient(135deg, #120b1e 0%, #3a1542 100%);
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative; /* Wymagane dla absolutnego przycisku powrotu */
+        }
+
+        /* PRZYCISK POWROTU */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #aaaaaa;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .back-btn:hover, .back-btn:active {
+            color: #ffffff;
+            background: rgba(255, 121, 198, 0.2);
+            border-color: #ff79c6;
+            transform: scale(0.95);
+        }
+
+        /* GŁÓWNY KONTENER GRY */
+        .game-container {
+            width: 90%;
+            max-width: 400px; /* Szerokość idealna na telefon */
+            padding: 2.5rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: #ff79c6; /* Neonowy różowy */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #aaaaaa;
+            margin-bottom: 2rem;
+        }
+
+        /* POLE Z PYTANIEM */
+        .question {
+            font-size: 1.6rem;
+            min-height: 150px; /* Stała wysokość, żeby przycisk nie skakał */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            line-height: 1.4;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Klasa do animacji zanikania */
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        /* PRZYCISK START/LOSUJ */
+        .action-btn {
+            background: linear-gradient(90deg, #ff79c6, #bd93f9);
+            color: #120b1e;
+            border: none;
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.1s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 121, 198, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95); /* Efekt wciśnięcia */
+            box-shadow: 0 2px 10px rgba(255, 121, 198, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="https://obidobi.pl/games" class="back-btn">
+        &#8592; Powrót
+    </a>
+
+    <div class="game-container">
+        <h1>Kto z nas</h1>
+        <div class="subtitle">Policzcie do 3 i wskażcie osobę palcem!</div>
+        
+        <div id="question-box" class="question">Gotowi na ujawnienie prawdy?</div>
+        
+        <button id="next-btn" class="action-btn">START</button>
+    </div>
+
+    <script>
+        // Baza pytań
+        const questions = [
+            "najszybciej trafiłby do więzienia?",
+            "przeżyłby apokalipsę zombie?",
+            "zgubiłby się we własnym mieście?",
+            "zostałby sławnym influencerem?",
+            "wygrałby na loterii i przetracił wszystko w tydzień?",
+            "adoptowałby 10 kotów na raz?",
+            "spóźniłby się na swój własny ślub?",
+            "wydałby ostatnie pieniądze na totalne głupoty?",
+            "najdłużej przetrwałby na bezludnej wyspie?",
+            "zadzwoniłby do byłego/byłej po pijaku?",
+            "spaliłby wodę na herbatę?",
+            "zasnąłby w klubie na imprezie?",
+            "zjadłby pizzę z ananasem bez marudzenia?",
+            "wierzy w teorie spiskowe?"
+        ];
+
+        let availableQuestions = [...questions];
+
+        const questionBox = document.getElementById('question-box');
+        const nextBtn = document.getElementById('next-btn');
+
+        nextBtn.addEventListener('click', () => {
+            if (nextBtn.textContent === "START") {
+                nextBtn.textContent = "LOSUJ DALEJ";
+            }
+
+            if (availableQuestions.length === 0) {
+                availableQuestions = [...questions];
+            }
+
+            const randomIndex = Math.floor(Math.random() * availableQuestions.length);
+            const selectedQuestion = availableQuestions[randomIndex];
+            
+            availableQuestions.splice(randomIndex, 1);
+
+            questionBox.classList.add('fade-out');
+            
+            setTimeout(() => {
+                questionBox.textContent = "... " + selectedQuestion;
+                questionBox.classList.remove('fade-out');
+            }, 300); 
+        });
+    </script>
+
+</body>
+</html>
