@@ -6,17 +6,18 @@
 <title>Impostor</title>
 <link rel="icon" type="image/png" href="/gamecon.png">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
     --black: #000000;
-    --lime: #32CD32;
-    --lime-dark: #28a428;
-    --lime-glow: rgba(50,205,50,0.18);
+    --pink: #ff2a85;
+    --pink-dark: #d11a68;
+    --pink-glow: rgba(255, 42, 133, 0.18);
     --surface: #0d0d0d;
     --surface2: #141414;
-    --border: rgba(50,205,50,0.2);
+    --border: rgba(255, 42, 133, 0.2);
     --text: #f0f0f0;
     --muted: #666;
     --red: #ff4444;
@@ -34,20 +35,18 @@
     overflow-x: hidden;
   }
 
-  /* Background subtle grid */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(50,205,50,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(50,205,50,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(255, 42, 133, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 42, 133, 0.05) 1px, transparent 1px);
     background-size: 60px 60px;
     pointer-events: none;
     z-index: 0;
   }
 
-  /* Back button */
   #back-btn {
     position: fixed;
     top: 20px;
@@ -55,7 +54,7 @@
     z-index: 100;
     background: var(--surface);
     border: 1px solid var(--border);
-    color: var(--lime);
+    color: var(--pink);
     font-family: var(--font);
     font-size: 13px;
     font-weight: 600;
@@ -69,10 +68,9 @@
     align-items: center;
     gap: 7px;
   }
-  #back-btn:hover { background: var(--lime-glow); border-color: var(--lime); transform: translateY(-1px); }
+  #back-btn:hover { background: var(--pink-glow); border-color: var(--pink); transform: translateY(-1px); }
   #back-btn::before { content: '←'; font-size: 15px; }
 
-  /* SCREENS */
   .screen {
     position: relative;
     z-index: 1;
@@ -91,13 +89,12 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* LOGO / TITLE */
   .logo {
     font-size: clamp(42px, 10vw, 72px);
     font-weight: 900;
     letter-spacing: -0.02em;
-    color: var(--lime);
-    text-shadow: 0 0 40px rgba(50,205,50,0.35);
+    color: var(--pink);
+    text-shadow: 0 0 40px rgba(255, 42, 133, 0.35);
     margin-bottom: 6px;
     line-height: 1;
   }
@@ -110,7 +107,6 @@
     margin-bottom: 44px;
   }
 
-  /* CARD */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -125,11 +121,10 @@
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--lime);
+    color: var(--pink);
     margin-bottom: 18px;
   }
 
-  /* INPUTS */
   .input-row {
     display: flex;
     gap: 10px;
@@ -148,13 +143,10 @@
     width: 100%;
   }
   input[type="text"]:focus, input[type="number"]:focus, select:focus {
-    border-color: var(--lime);
+    border-color: var(--pink);
   }
   input[type="number"] { width: 90px; flex-shrink: 0; }
-  select { cursor: pointer; }
-  select option { background: #111; }
-
-  /* PLAYERS LIST */
+  
   #players-list {
     display: flex;
     flex-direction: column;
@@ -178,16 +170,38 @@
     padding: 10px 14px;
     animation: slideIn 0.2s ease;
   }
+  /* Klasa dodawana podczas przeciągania elementu */
+  .sortable-ghost {
+    opacity: 0.4;
+    background: var(--pink-glow);
+    border: 1px dashed var(--pink);
+  }
+
   @keyframes slideIn {
     from { opacity: 0; transform: translateX(-10px); }
     to { opacity: 1; transform: translateX(0); }
   }
+  
+  /* Uchwyt do przeciągania */
+  .drag-handle {
+    cursor: grab;
+    color: var(--muted);
+    font-size: 20px;
+    margin-right: 12px;
+    user-select: none;
+    touch-action: none; /* Zapobiega przewijaniu strony podczas przeciągania na tel */
+  }
+  .drag-handle:active {
+    cursor: grabbing;
+    color: var(--pink);
+  }
+
   .player-name { font-size: 15px; font-weight: 600; }
   .player-num {
     font-size: 11px;
     font-weight: 700;
-    color: var(--lime);
-    background: var(--lime-glow);
+    color: var(--pink);
+    background: var(--pink-glow);
     border-radius: 50px;
     padding: 2px 9px;
     margin-right: 10px;
@@ -206,7 +220,6 @@
   }
   .remove-btn:hover { color: var(--red); }
 
-  /* IMPOSTOR COUNT */
   .impostor-row {
     display: flex;
     align-items: center;
@@ -224,7 +237,7 @@
     border-radius: 50%;
     border: 1px solid var(--border);
     background: var(--surface);
-    color: var(--lime);
+    color: var(--pink);
     font-size: 20px;
     font-weight: 700;
     cursor: pointer;
@@ -233,17 +246,16 @@
     line-height: 1;
     padding-bottom: 1px;
   }
-  .counter-btn:hover { background: var(--lime-glow); transform: scale(1.1); }
+  .counter-btn:hover { background: var(--pink-glow); transform: scale(1.1); }
   .counter-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
   #impostor-count-display {
     font-size: 22px;
     font-weight: 900;
-    color: var(--lime);
+    color: var(--pink);
     min-width: 28px;
     text-align: center;
   }
 
-  /* BUTTONS */
   .btn {
     width: 100%;
     max-width: 520px;
@@ -261,25 +273,24 @@
     overflow: hidden;
   }
   .btn-primary {
-    background: var(--lime);
+    background: var(--pink);
     color: #000;
-    box-shadow: 0 0 0 0 var(--lime-glow);
+    box-shadow: 0 0 0 0 var(--pink-glow);
   }
   .btn-primary:hover {
     opacity: 0.88;
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(50,205,50,0.25);
+    box-shadow: 0 8px 28px rgba(255, 42, 133, 0.25);
   }
   .btn-primary:active { transform: translateY(0); }
   .btn-outline {
     background: transparent;
-    color: var(--lime);
-    border: 1px solid var(--lime);
+    color: var(--pink);
+    border: 1px solid var(--pink);
   }
-  .btn-outline:hover { background: var(--lime-glow); transform: translateY(-2px); }
+  .btn-outline:hover { background: var(--pink-glow); transform: translateY(-2px); }
   .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
 
-  /* ERROR */
   .error-msg {
     font-size: 13px;
     color: var(--red);
@@ -289,10 +300,7 @@
     margin: -8px 0 10px;
   }
 
-  /* ─── PLAYER SCREEN ─── */
-  #player-screen {
-    text-align: center;
-  }
+  #player-screen { text-align: center; }
   .turn-badge {
     font-size: 11px;
     font-weight: 700;
@@ -358,8 +366,8 @@
   .haslo-display {
     font-size: 30px;
     font-weight: 900;
-    color: var(--lime);
-    text-shadow: 0 0 30px var(--lime-glow);
+    color: var(--pink);
+    text-shadow: 0 0 30px var(--pink-glow);
     letter-spacing: 0.02em;
     text-align: center;
     line-height: 1.2;
@@ -382,7 +390,7 @@
   }
 
   .btn-reveal {
-    background: var(--lime);
+    background: var(--pink);
     color: #000;
     font-family: var(--font);
     font-size: 14px;
@@ -401,7 +409,7 @@
   .btn-reveal:hover {
     opacity: 0.88;
     transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(50,205,50,0.25);
+    box-shadow: 0 8px 28px rgba(255, 42, 133, 0.25);
   }
   .btn-reveal:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
@@ -424,14 +432,13 @@
   .btn-continue:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); transform: translateY(-1px); }
   .btn-continue:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
-  /* ─── END SCREEN ─── */
   #end-screen { text-align: center; }
 
   .end-title {
     font-size: clamp(28px, 7vw, 52px);
     font-weight: 900;
-    color: var(--lime);
-    text-shadow: 0 0 40px rgba(50,205,50,0.4);
+    color: var(--pink);
+    text-shadow: 0 0 40px rgba(255, 42, 133, 0.4);
     letter-spacing: -0.01em;
     margin-bottom: 12px;
     animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -442,7 +449,34 @@
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    margin-bottom: 52px;
+    margin-bottom: 30px;
+  }
+
+  /* Styl boxa losującego gracza rozpoczynającego */
+  .starter-box {
+    background: var(--surface2);
+    border: 1px solid var(--pink);
+    border-radius: var(--radius);
+    padding: 20px;
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 20px var(--pink-glow);
+    animation: fadeIn 0.6s ease;
+  }
+  .starter-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .starter-name {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.02em;
   }
 
   .summary-grid {
@@ -462,7 +496,7 @@
   .summary-box-num {
     font-size: 34px;
     font-weight: 900;
-    color: var(--lime);
+    color: var(--pink);
     line-height: 1;
     margin-bottom: 6px;
   }
@@ -474,16 +508,6 @@
     color: var(--muted);
   }
 
-  /* DIVIDER */
-  .divider {
-    width: 100%;
-    max-width: 520px;
-    height: 1px;
-    background: var(--border);
-    margin: 8px 0 20px;
-  }
-
-  /* RESPONSIVE */
   @media (max-width: 480px) {
     .card { padding: 22px 18px; }
     .screen { padding: 90px 14px 40px; }
@@ -494,7 +518,6 @@
 
 <a id="back-btn" href="https://obidobi.pl/games">Powrót</a>
 
-<!-- ═══ START SCREEN ═══ -->
 <div id="start-screen" class="screen active">
   <div class="logo">IMPOSTOR</div>
   <div class="logo-sub">Gra towarzyska</div>
@@ -527,7 +550,6 @@
   <button class="btn btn-primary" onclick="startGame()">Rozpocznij Grę →</button>
 </div>
 
-<!-- ═══ PLAYER SCREEN ═══ -->
 <div id="player-screen" class="screen">
   <div class="turn-badge" id="turn-badge">Gracz 1 z 6</div>
   <div class="player-big-name" id="current-player-name">Anna</div>
@@ -540,10 +562,14 @@
   <button class="btn-continue" id="continue-btn" onclick="nextPlayer()" disabled>Kontynuuj →</button>
 </div>
 
-<!-- ═══ END SCREEN ═══ -->
 <div id="end-screen" class="screen">
   <div class="end-title">Gra się zaczęła!</div>
   <div class="end-sub">Wszyscy znają swoje role</div>
+
+  <div class="starter-box">
+    <div class="starter-label">Rundę rozpoczyna:</div>
+    <div class="starter-name" id="starter-display-name">---</div>
+  </div>
 
   <div class="summary-grid">
     <div class="summary-box">
@@ -737,6 +763,16 @@
     { haslo: "Chmura",    podpowiedz: "Wata cukrowa" },
     { haslo: "Parasol",   podpowiedz: "Burza" },
     { haslo: "Wiatr",     podpowiedz: "Jesień" },
+    { haslo: "Arbuz",     podpowiedz: "Pestka" },
+    { haslo: "Wibrator",  podpowiedz: "Pilot" },
+    { haslo: "Życie",     podpowiedz: "Biologia" },
+    { haslo: "Piosenkarz", podpowiedz: "Głos" },
+    { haslo: "Szminka",   podpowiedz: "Pocałunek" },
+    { haslo: "Bytelka",   podpowiedz: "Recykling" },
+    { haslo: "Plakat",    podpowiedz: "Nadruk" },
+    { haslo: "Drukarka",  podpowiedz: "Laser" },
+    { haslo: "Paczkomat", podpowiedz: "Kalendarz adwentowy" },
+    { haslo: "Kurier",    podpowiedz: "Furgonetka" },
   ];
   let players = [];
   let impostorCount = 1;
@@ -744,6 +780,22 @@
   let currentIndex = 0;
   let revealed = false;
   let currentPair = null;
+
+  /* ─── INICJALIZACJA PRZECIĄGANIA (SORTABLE.JS) ─── */
+  document.addEventListener("DOMContentLoaded", () => {
+    const listEl = document.getElementById('players-list');
+    new Sortable(listEl, {
+      handle: '.drag-handle', // Klasa uchwytu
+      animation: 150, // Płynna animacja
+      onEnd: function (evt) {
+        // Zaktualizuj tablicę po puszczeniu elementu
+        const movedPlayer = players.splice(evt.oldIndex, 1)[0];
+        players.splice(evt.newIndex, 0, movedPlayer);
+        // Przerenderuj, aby odświeżyć numery 1,2,3...
+        renderPlayers(); 
+      }
+    });
+  });
 
   /* ─── PLAYER MANAGEMENT ─── */
   function addPlayer() {
@@ -781,9 +833,12 @@
       return;
     }
     noPlayers.style.display = 'none';
+    
+    // Dodano uchwyt do przeciągania (.drag-handle) z ikoną ☰
     list.innerHTML = players.map((p, i) => `
       <div class="player-item">
         <div class="player-left">
+          <span class="drag-handle" title="Przeciągnij">☰</span>
           <span class="player-num">${i + 1}</span>
           <span class="player-name">${escHtml(p)}</span>
         </div>
@@ -894,6 +949,11 @@
   function showEndScreen() {
     document.getElementById('sum-players').textContent = players.length;
     document.getElementById('sum-impostors').textContent = impostorCount;
+
+    // Losowanie gracza rozpoczynającego
+    const randomStarter = players[Math.floor(Math.random() * players.length)];
+    document.getElementById('starter-display-name').textContent = randomStarter;
+
     showScreen('end-screen');
   }
 
