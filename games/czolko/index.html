@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Czółko - Zgadnij kim jesteś!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #09090b; /* Głęboki, niemal całkowity czarny (zinc-950) */
+            color: white;
+            overflow: hidden; /* Zapobiega przewijaniu na telefonie */
+            touch-action: manipulation; /* Poprawia reakcję na dotyk */
+        }
+        
+        .screen {
+            display: none;
+            min-height: 100vh;
+            width: 100vw;
+            flex-direction: column;
+        }
+        
+        .screen.active {
+            display: flex;
+        }
+
+        /* Animacja wejścia hasła */
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .word-animate {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Animacje tła przy odpowiedzi */
+        .bg-flash-correct {
+            animation: flashGreen 0.5s ease-out;
+        }
+        .bg-flash-pass {
+            animation: flashRed 0.5s ease-out;
+        }
+        @keyframes flashGreen {
+            0% { background-color: #166534; } /* Ciemniejszy zielony dla płynnego przejścia */
+            100% { background-color: #09090b; }
+        }
+        @keyframes flashRed {
+            0% { background-color: #991b1b; } /* Ciemniejszy czerwony */
+            100% { background-color: #09090b; }
+        }
+    </style>
+</head>
+<body id="game-body">
+
+    <div id="start-screen" class="screen active justify-center items-center p-6 bg-gradient-to-br from-zinc-900 to-black">
+        <h1 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-600 mb-2 drop-shadow-lg text-center tracking-tight">
+            CZÓŁKO
+        </h1>
+        <p class="text-zinc-400 mb-8 text-center text-lg">Przyłóż telefon do czoła i zgaduj!</p>
+
+        <div class="w-full max-w-md bg-zinc-900/80 backdrop-blur-md p-6 rounded-3xl border border-pink-500/30 shadow-[0_0_30px_rgba(236,72,153,0.15)] overflow-y-auto max-h-[75vh]">
+            <h2 class="text-2xl font-bold mb-4 text-center text-pink-50">Wybierz kategorię:</h2>
+            <div id="categories-container" class="grid grid-cols-1 gap-3 mb-6">
+                </div>
+            
+            <div class="flex justify-between items-center bg-black/50 p-4 rounded-xl mb-3 border border-zinc-800">
+                <span class="font-semibold text-zinc-300">Słówka na rundę:</span>
+                <select id="words-per-round-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-2 px-4 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                    <option value="20">20</option>
+                    <option value="999">Wszystkie</option>
+                </select>
+            </div>
+
+            <div class="flex justify-between items-center bg-black/50 p-4 rounded-xl mb-3 border border-zinc-800">
+                <span class="font-semibold text-zinc-300">Max czas rundy:</span>
+                <select id="time-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-2 px-4 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
+                    <option value="30">30 sek</option>
+                    <option value="60" selected>60 sek</option>
+                    <option value="90">90 sek</option>
+                    <option value="120">120 sek</option>
+                </select>
+            </div>
+
+            <div class="flex justify-between items-center bg-black/50 p-4 rounded-xl mb-6 border border-zinc-800">
+                <span class="font-semibold text-zinc-300">Ilość rund:</span>
+                <select id="rounds-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-2 px-4 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+
+            <button id="start-btn" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-black text-2xl py-4 rounded-2xl shadow-[0_10px_20px_-10px_rgba(236,72,153,0.5)] transform transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                GRAJ!
+            </button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen justify-between p-6 pb-0">
+        <div class="flex justify-between items-center w-full pt-4 px-2 sm:px-4">
+            <div class="bg-zinc-900/80 border border-pink-500/30 backdrop-blur px-4 py-2 rounded-full font-bold text-lg flex items-center">
+                <span id="round-display" class="text-pink-300 mr-2 border-r border-pink-500/30 pr-2">R 1/3</span>
+                Wynik: <span id="score-display" class="text-pink-500 ml-1">0</span>
+            </div>
+            <div class="flex gap-2">
+                <div class="bg-zinc-900/80 border border-pink-500/30 backdrop-blur px-3 py-2 rounded-full font-bold text-lg flex items-center text-zinc-300" id="word-counter-display">
+                    1/10
+                </div>
+                <div class="bg-zinc-900/80 border border-pink-500/30 backdrop-blur px-4 py-2 rounded-full font-bold text-xl flex items-center gap-2 text-pink-100">
+                    ⏱ <span id="timer-display">60</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-grow flex items-center justify-center text-center px-4">
+            <h2 id="word-display" class="text-5xl sm:text-7xl font-black leading-tight break-words drop-shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+                HASŁO
+            </h2>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 w-full pb-8 pt-4">
+            <button id="pass-btn" class="bg-zinc-900 border-2 border-red-500/50 hover:bg-red-950/50 text-red-500 font-black text-xl sm:text-2xl py-12 rounded-3xl shadow-lg transform transition active:scale-95 flex flex-col items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                POMIŃ
+            </button>
+            <button id="correct-btn" class="bg-zinc-900 border-2 border-green-500/50 hover:bg-green-950/50 text-green-500 font-black text-xl sm:text-2xl py-12 rounded-3xl shadow-lg transform transition active:scale-95 flex flex-col items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                </svg>
+                DOBRZE!
+            </button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="screen bg-black p-6 flex flex-col h-screen">
+        <h2 id="end-title" class="text-4xl font-black text-center mt-8 mb-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-600">Koniec rundy!</h2>
+        
+        <div class="text-center mb-6 bg-zinc-900/80 border border-pink-500/20 p-4 rounded-2xl">
+            <p class="text-lg text-zinc-300">Odgadnięte w tej rundzie: <span id="round-score" class="font-bold text-pink-500 text-2xl ml-1">0</span></p>
+            <p class="text-sm text-zinc-400 mt-1">Suma w grze: <span id="total-score" class="font-bold text-pink-300 text-lg ml-1">0</span></p>
+        </div>
+
+        <div class="flex-grow overflow-y-auto bg-zinc-900/50 rounded-2xl p-4 mb-6 backdrop-blur shadow-inner border border-zinc-800">
+            <h3 class="font-bold text-lg mb-3 border-b border-zinc-800 pb-2 text-green-400">Odgadnięte:</h3>
+            <ul id="correct-list" class="list-disc pl-5 mb-6 text-zinc-200 font-semibold space-y-1"></ul>
+            
+            <h3 class="font-bold text-lg mb-3 border-b border-zinc-800 pb-2 text-red-400">Pominięte:</h3>
+            <ul id="passed-list" class="list-disc pl-5 text-zinc-400 space-y-1"></ul>
+        </div>
+
+        <button id="next-round-btn" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 text-white font-black text-2xl py-4 rounded-2xl shadow-[0_5px_15px_-5px_rgba(236,72,153,0.5)] transform transition active:scale-95 mb-4">
+            Następna runda
+        </button>
+        <button id="restart-btn" class="w-full bg-zinc-900 border border-pink-600/50 text-pink-400 hover:bg-zinc-800 font-black text-xl py-4 rounded-2xl transform transition active:scale-95 mb-4">
+            Zakończ i wróć do menu
+        </button>
+    </div>
+
+    <script>
+        // --- BAZA HASEŁ ---
+        const database = {
+            "Zwierzęta": [
+                "Pies", "Kot", "Koń", "Krowa", "Świnia", "Owca", "Koza", "Kura", "Kaczka", "Gęś", 
+                "Chomik", "Królik", "Papuga", "Kanarek", "Żółw", "Wąż", "Jaszczurka", "Żaba", "Ślimak",
+                "Lew", "Tygrys", "Słoń", "Żyrafa", "Małpa", "Goryl", "Zebra", "Hipopotam", "Nosorożec", 
+                "Krokodyl", "Kangur", "Miś Koala", "Panda", "Niedźwiedź", "Wilk", "Lis", "Dzik", "Jeleń", 
+                "Sarna", "Zając", "Wiewiórka", "Bóbr", "Jeż", "Sowa", "Orzeł", "Jastrząb", "Bocian", 
+                "Łabędź", "Pingwin", "Wieloryb", "Delfin", "Rekin", "Ośmiornica", "Krab", "Meduza", 
+                "Mucha", "Komar", "Pszczoła", "Osa", "Mrówka", "Pająk", "Motyl", "Biedronka"
+            ],
+            "Postacie (Filmy/Bajki)": [
+                "Harry Potter", "Spiderman", "Batman", "Superman", "Iron Man", "Kapitan Ameryka", 
+                "Thor", "Hulk", "Wonder Woman", "James Bond", "Darth Vader", "Luke Skywalker", "Yoda", 
+                "Chewbacca", "Frodo Baggins", "Gandalf", "Shrek", "Fiona", "Osioł", "Kot w butach", 
+                "Myszka Miki", "Kaczor Donald", "Goofy", "Królewna Śnieżka", "Kopciuszek", "Arielka", 
+                "Pikachu", "Spongebob", "Homer Simpson", "Bart Simpson", "Sherlock Holmes", "Dracula", 
+                "Frankenstein", "Tarzan", "Robin Hood", "Kubuś Puchatek", "Prosiaczek", "Tygrysek", 
+                "Kłapouchy", "Minionek", "Jack Sparrow", "Indiana Jones", "Scooby-Doo", "Mulan"
+            ],
+            "Zawody": [
+                "Lekarz", "Pielęgniarka", "Dentysta", "Weterynarz", "Strażak", "Policjant", "Żołnierz", 
+                "Nauczyciel", "Profesor", "Kucharz", "Kelner", "Piekarz", "Rzeźnik", "Fryzjer", 
+                "Kosmetyczka", "Mechanik", "Kierowca", "Pilot", "Stewardessa", "Maszynista", "Marynarz", 
+                "Informatyk", "Programista", "Architekt", "Inżynier", "Prawnik", "Sędzia", "Polityk", 
+                "Aktor", "Piosenkarz", "Muzyk", "Tancerz", "Malarz", "Pisarz", "Dziennikarz", "Fotograf", 
+                "Sportowiec", "Piłkarz", "Koszykarz", "Trener", "Rolnik", "Górnik", "Sprzedawca", "Kasjer", 
+                "Listonosz", "Kurier", "Hydraulik", "Elektryk", "Stolarz", "Murarz"
+            ],
+            "Rzeczy": [
+                "Stół", "Krzesło", "Łóżko", "Kanapa", "Szafa", "Telewizor", "Komputer", "Laptop", 
+                "Telefon", "Tablet", "Zegarek", "Książka", "Zeszyt", "Długopis", "Ołówek", "Gumka do mazania", 
+                "Plecak", "Torebka", "Portfel", "Klucze", "Okulary", "Lustro", "Grzebień", "Szczoteczka", 
+                "Mydło", "Ręcznik", "Poduszka", "Koc", "Garnek", "Patelnia", "Talerz", "Kubek", "Sztućce", 
+                "Nóż", "Widelec", "Łyżka", "Buty", "Skarpetki", "Spodnie", "Koszulka", "Kurtka", "Czapka", 
+                "Szalik", "Rękawiczki", "Samochód", "Rower", "Motocykl", "Hulajnoga", "Samolot", "Pociąg", 
+                "Autobus", "Statek", "Piłka", "Lalka", "Klocki Lego", "Gra planszowa", "Gitara", "Pianino"
+            ]
+        };
+
+        // --- STAN GRY ---
+        let currentCategory = "";
+        let wordsQueue = [];       
+        let roundWordsQueue = [];  
+        let correctWords = [];
+        let passedWords = [];
+        
+        let wordsPerRound = 10;
+        let wordsPlayedInRound = 0;
+        
+        let timeRemaining = 60;
+        let timerInterval = null;
+        
+        let totalRounds = 3;
+        let currentRound = 1;
+        let globalScore = 0;
+
+        // --- ELEMENTY DOM ---
+        const screens = {
+            start: document.getElementById('start-screen'),
+            game: document.getElementById('game-screen'),
+            end: document.getElementById('end-screen')
+        };
+        
+        const categoriesContainer = document.getElementById('categories-container');
+        const startBtn = document.getElementById('start-btn');
+        const timeSelect = document.getElementById('time-select');
+        const roundsSelect = document.getElementById('rounds-select');
+        const wordsPerRoundSelect = document.getElementById('words-per-round-select');
+        
+        const wordDisplay = document.getElementById('word-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const roundDisplay = document.getElementById('round-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const wordCounterDisplay = document.getElementById('word-counter-display');
+        
+        const correctBtn = document.getElementById('correct-btn');
+        const passBtn = document.getElementById('pass-btn');
+        const bodyElem = document.getElementById('game-body');
+        
+        const endTitle = document.getElementById('end-title');
+        const roundScore = document.getElementById('round-score');
+        const totalScoreDisplay = document.getElementById('total-score');
+        const correctList = document.getElementById('correct-list');
+        const passedList = document.getElementById('passed-list');
+        
+        const nextRoundBtn = document.getElementById('next-round-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // --- INICJALIZACJA KATEGORII ---
+        function initCategories() {
+            Object.keys(database).forEach((cat, index) => {
+                const label = document.createElement('label');
+                label.className = "flex items-center p-4 bg-zinc-800/50 rounded-xl cursor-pointer hover:bg-zinc-800 transition border border-transparent hover:border-pink-500/30";
+                label.innerHTML = `
+                    <input type="radio" name="category" value="${cat}" class="w-5 h-5 text-pink-500 bg-zinc-900 border-zinc-600 focus:ring-pink-500 focus:ring-offset-zinc-900" ${index === 0 ? 'checked' : ''}>
+                    <span class="ml-3 text-lg font-bold text-zinc-100">${cat} <span class="text-xs text-pink-400 font-normal ml-1">(${database[cat].length} haseł)</span></span>
+                `;
+                categoriesContainer.appendChild(label);
+            });
+        }
+
+        // --- FUNKCJE POMOCNICZE ---
+        function shuffleArray(array) {
+            let curId = array.length;
+            while (0 !== curId) {
+                let randId = Math.floor(Math.random() * curId);
+                curId -= 1;
+                let tmp = array[curId];
+                array[curId] = array[randId];
+                array[randId] = tmp;
+            }
+            return array;
+        }
+
+        function showScreen(screenName) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screens[screenName].classList.add('active');
+        }
+
+        function triggerFlash(type) {
+            bodyElem.classList.remove('bg-flash-correct', 'bg-flash-pass');
+            void bodyElem.offsetWidth; 
+            if(type === 'correct') {
+                bodyElem.classList.add('bg-flash-correct');
+            } else {
+                bodyElem.classList.add('bg-flash-pass');
+            }
+        }
+
+        function animateWord() {
+            wordDisplay.classList.remove('word-animate');
+            void wordDisplay.offsetWidth;
+            wordDisplay.classList.add('word-animate');
+        }
+
+        // --- LOGIKA GRY ---
+        function initGame() {
+            const selectedRadio = document.querySelector('input[name="category"]:checked');
+            if (!selectedRadio) return;
+            
+            currentCategory = selectedRadio.value;
+            wordsQueue = shuffleArray([...database[currentCategory]]);
+            
+            totalRounds = parseInt(roundsSelect.value);
+            wordsPerRound = parseInt(wordsPerRoundSelect.value);
+            currentRound = 1;
+            globalScore = 0;
+            
+            startRound();
+        }
+
+        function startRound() {
+            roundWordsQueue = [];
+            for(let i = 0; i < wordsPerRound; i++) {
+                if(wordsQueue.length > 0) {
+                    roundWordsQueue.push(wordsQueue.pop());
+                }
+            }
+
+            if (roundWordsQueue.length === 0) {
+                endRound(true);
+                return;
+            }
+
+            correctWords = [];
+            passedWords = [];
+            wordsPlayedInRound = 0;
+            timeRemaining = parseInt(timeSelect.value);
+            
+            roundDisplay.textContent = `Runda ${currentRound}/${totalRounds}`;
+            scoreDisplay.textContent = "0";
+            timerDisplay.textContent = timeRemaining;
+            timerDisplay.classList.remove('text-red-500', 'animate-pulse');
+            
+            showScreen('game');
+            nextWord();
+            
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            timeRemaining--;
+            timerDisplay.textContent = timeRemaining;
+            
+            if (timeRemaining <= 10) {
+                timerDisplay.classList.add('text-red-500', 'animate-pulse');
+            } else {
+                timerDisplay.classList.remove('text-red-500', 'animate-pulse');
+            }
+
+            if (timeRemaining <= 0) {
+                endRound(); 
+            }
+        }
+
+        function nextWord() {
+            if (roundWordsQueue.length === 0) {
+                endRound();
+                return;
+            }
+            wordsPlayedInRound++;
+            
+            if(wordsPerRound === 999) {
+                wordCounterDisplay.textContent = `${wordsPlayedInRound}`;
+            } else {
+                wordCounterDisplay.textContent = `${wordsPlayedInRound}/${roundWordsQueue.length + wordsPlayedInRound}`;
+            }
+            
+            const word = roundWordsQueue.pop();
+            wordDisplay.textContent = word;
+            animateWord();
+        }
+
+        function handleAnswer(isCorrect) {
+            const currentWord = wordDisplay.textContent;
+            
+            if (isCorrect) {
+                correctWords.push(currentWord);
+                scoreDisplay.textContent = correctWords.length;
+                triggerFlash('correct');
+            } else {
+                passedWords.push(currentWord);
+                triggerFlash('pass');
+            }
+            
+            nextWord();
+        }
+
+        function endRound(outOfWordsInDatabase = false) {
+            clearInterval(timerInterval);
+            
+            globalScore += correctWords.length;
+            
+            roundScore.textContent = correctWords.length;
+            totalScoreDisplay.textContent = globalScore;
+            
+            correctList.innerHTML = correctWords.length > 0 
+                ? correctWords.map(w => `<li>${w}</li>`).join('') 
+                : '<li class="text-zinc-600 italic">Brak odgadniętych haseł 😢</li>';
+                
+            passedList.innerHTML = passedWords.length > 0 
+                ? passedWords.map(w => `<li>${w}</li>`).join('') 
+                : '<li class="text-zinc-600 italic">Brak pominiętych haseł! 👏</li>';
+            
+            if (outOfWordsInDatabase) {
+                endTitle.textContent = "Baza haseł pusta!";
+                nextRoundBtn.style.display = 'none';
+                restartBtn.style.display = 'block';
+                restartBtn.textContent = "Koniec gry - wróć do menu";
+            } else if (currentRound < totalRounds) {
+                endTitle.textContent = `Koniec rundy ${currentRound}!`;
+                nextRoundBtn.style.display = 'block';
+                restartBtn.style.display = 'block';
+                restartBtn.textContent = "Przerwij i wróć do menu";
+            } else {
+                endTitle.textContent = "Koniec gry!";
+                nextRoundBtn.style.display = 'none';
+                restartBtn.style.display = 'block';
+                restartBtn.textContent = "Zagraj ponownie";
+            }
+            
+            showScreen('end');
+        }
+
+        // --- EVENT LISTENERY ---
+        startBtn.addEventListener('click', initGame);
+        
+        correctBtn.addEventListener('click', () => handleAnswer(true));
+        passBtn.addEventListener('click', () => handleAnswer(false));
+        
+        nextRoundBtn.addEventListener('click', () => {
+            currentRound++;
+            startRound();
+        });
+        
+        restartBtn.addEventListener('click', () => showScreen('start'));
+
+        // Start
+        initCategories();
+    </script>
+</body>
+</html>
