@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Czółko - Zgadnij kim jesteś!</title>
+    <title>Czółko</title>
+    <link rel="icon" type="image/png" href="/gamecon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet">
     
@@ -18,7 +19,7 @@
         
         .screen {
             display: none;
-            min-height: 100vh;
+            height: 100dvh; /* Użycie dvh naprawia problem z paskami przeglądarek */
             width: 100vw;
             flex-direction: column;
         }
@@ -56,20 +57,22 @@
 </head>
 <body id="game-body">
 
-    <div id="start-screen" class="screen active justify-center items-center p-6 bg-gradient-to-br from-zinc-900 to-black">
-        <h1 class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-600 mb-2 pt-4 pb-2 drop-shadow-lg text-center tracking-tight leading-tight">
-            CZÓŁKO
-        </h1>
-        <p class="text-zinc-400 mb-8 text-center text-lg">Przyłóż telefon do czoła i zgaduj!</p>
+    <div id="start-screen" class="screen active justify-start items-center p-4 sm:p-6 bg-gradient-to-br from-zinc-900 to-black overflow-y-auto">
+        <div class="flex-none pt-6 sm:pt-10 pb-4 sm:pb-8 text-center shrink-0">
+            <h1 class="text-5xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-600 mb-2 drop-shadow-lg tracking-tight">
+                CZÓŁKO
+            </h1>
+            <p class="text-zinc-400 text-base sm:text-lg">Przyłóż telefon do czoła i zgaduj!</p>
+        </div>
 
-        <div class="w-full max-w-md bg-zinc-900/80 backdrop-blur-md p-6 rounded-3xl border border-pink-500/30 shadow-[0_0_30px_rgba(236,72,153,0.15)] overflow-y-auto max-h-[75vh]">
-            <h2 class="text-2xl font-bold mb-4 text-center text-pink-50">Wybierz kategorię:</h2>
-            <div id="categories-container" class="grid grid-cols-1 gap-3 mb-6">
-                </div>
+        <div class="w-full max-w-md bg-zinc-900/80 backdrop-blur-md p-5 sm:p-6 rounded-3xl border border-pink-500/30 shadow-[0_0_30px_rgba(236,72,153,0.15)] flex flex-col shrink-0 mb-10">
+            <h2 class="text-xl sm:text-2xl font-bold mb-4 text-center text-pink-50">Wybierz kategorię:</h2>
+            <div id="categories-container" class="grid grid-cols-1 gap-2 sm:gap-3 mb-5">
+            </div>
             
-            <div class="flex justify-between items-center bg-black/50 p-4 rounded-xl mb-3 border border-zinc-800">
-                <span class="font-semibold text-zinc-300">Słówka na rundę:</span>
-                <select id="words-per-round-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-2 px-4 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
+            <div class="flex justify-between items-center bg-black/50 p-3 sm:p-4 rounded-xl mb-3 border border-zinc-800">
+                <span class="font-semibold text-zinc-300 text-sm sm:text-base">Słówka na rundę:</span>
+                <select id="words-per-round-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-1.5 px-3 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
                     <option value="5">5</option>
                     <option value="10" selected>10</option>
                     <option value="15">15</option>
@@ -78,9 +81,9 @@
                 </select>
             </div>
 
-            <div class="flex justify-between items-center bg-black/50 p-4 rounded-xl mb-3 border border-zinc-800">
-                <span class="font-semibold text-zinc-300">Max czas rundy:</span>
-                <select id="time-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-2 px-4 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
+            <div class="flex justify-between items-center bg-black/50 p-3 sm:p-4 rounded-xl mb-3 border border-zinc-800">
+                <span class="font-semibold text-zinc-300 text-sm sm:text-base">Max czas rundy:</span>
+                <select id="time-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-1.5 px-3 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
                     <option value="30">30 sek</option>
                     <option value="60" selected>60 sek</option>
                     <option value="90">90 sek</option>
@@ -88,9 +91,9 @@
                 </select>
             </div>
 
-            <div class="flex justify-between items-center bg-black/50 p-4 rounded-xl mb-6 border border-zinc-800">
-                <span class="font-semibold text-zinc-300">Ilość rund:</span>
-                <select id="rounds-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-2 px-4 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
+            <div class="flex justify-between items-center bg-black/50 p-3 sm:p-4 rounded-xl mb-6 border border-zinc-800">
+                <span class="font-semibold text-zinc-300 text-sm sm:text-base">Ilość rund:</span>
+                <select id="rounds-select" class="bg-zinc-800 text-pink-400 border border-pink-500/50 font-bold py-1.5 px-3 rounded-lg outline-none focus:ring-2 focus:ring-pink-500">
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3" selected>3</option>
@@ -100,7 +103,7 @@
                 </select>
             </div>
 
-            <button id="start-btn" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-black text-2xl py-4 rounded-2xl shadow-[0_10px_20px_-10px_rgba(236,72,153,0.5)] transform transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+            <button id="start-btn" class="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-black text-xl sm:text-2xl py-3.5 sm:py-4 rounded-2xl shadow-[0_10px_20px_-10px_rgba(236,72,153,0.5)] transform transition active:scale-95 disabled:opacity-50 mt-2">
                 GRAJ!
             </button>
         </div>
@@ -144,7 +147,7 @@
         </div>
     </div>
 
-    <div id="end-screen" class="screen bg-black p-6 flex flex-col h-screen">
+    <div id="end-screen" class="screen bg-black p-6 flex flex-col">
         <h2 id="end-title" class="text-4xl font-black text-center mt-8 mb-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-pink-600">Koniec rundy!</h2>
         
         <div class="text-center mb-6 bg-zinc-900/80 border border-pink-500/20 p-4 rounded-2xl">
