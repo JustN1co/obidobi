@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BOMBA - Gra Towarzyska</title>
+    <style>
+        :root {
+            --black: #000000;
+            --pink: #ff007f;
+            --dark-pink: #8b0046;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--black);
+            color: white;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* Przycisk Powrót */
+        #back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: var(--pink);
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            border: 1px solid var(--pink);
+            padding: 5px 10px;
+            border-radius: 5px;
+            z-index: 1001;
+            transition: all 0.3s;
+        }
+
+        #back-btn:hover {
+            background-color: var(--pink);
+            color: black;
+        }
+
+        #game-container {
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            border: 2px solid var(--pink);
+            border-radius: 20px;
+            box-shadow: 0 0 20px var(--dark-pink);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--pink);
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px var(--pink);
+        }
+
+        #category-display {
+            font-size: 1.5rem;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .status-text {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        button#main-btn {
+            background-color: var(--pink);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 5px 15px rgba(255, 0, 127, 0.4);
+            transition: transform 0.1s, background-color 0.2s;
+            width: 100%;
+        }
+
+        button#main-btn:active {
+            transform: scale(0.95);
+            background-color: var(--dark-pink);
+        }
+
+        /* Animacja tykania */
+        .ticking {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 20px var(--dark-pink); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px var(--pink); }
+            100% { transform: scale(1); box-shadow: 0 0 20px var(--dark-pink); }
+        }
+
+        #explosion-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--pink);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: 900;
+            color: black;
+            text-transform: uppercase;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="https://obidobi.pl/games" id="back-btn">Powrót</a>
+
+    <div id="game-container">
+        <h1>BOMBA</h1>
+        <div id="category-display">Kliknij START, aby zacząć</div>
+        <p class="status-text" id="status">Podaj telefon osobie obok i wymień rzecz z kategorii!</p>
+        <button id="main-btn">Start</button>
+    </div>
+
+    <div id="explosion-overlay">PRZEGRAŁEŚ!</div>
+
+    <script>
+        const categories = [
+            "Marki samochodów", "Rzeczy w lodówce", "Stolice Europy", "Polscy piosenkarze",
+            "Zwierzęta na literę K", "Przedmioty w łazience", "Dyscypliny sportowe",
+            "Filmy science-fiction", "Składniki pizzy", "Słynni jutuberzy", 
+            "Gry wideo", "Rzeczy, które są czerwone", "Postacie z Marvela",
+            "Marki ubrań", "Rodzaje makaronu", "Coś, co znajdziesz w lesie",
+            "Słodycze", "Aktorzy z Hollywood", "Gatunki muzyczne"
+        ];
+
+        const mainBtn = document.getElementById('main-btn');
+        const categoryDisplay = document.getElementById('category-display');
+        const container = document.getElementById('game-container');
+        const overlay = document.getElementById('explosion-overlay');
+        const statusText = document.getElementById('status');
+
+        let audioCtx = null;
+        let gameActive = false;
+
+        function playSound(freq, duration, type = 'sine') {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) { console.log("Audio not supported yet"); }
+        }
+
+        function startGame() {
+            gameActive = true;
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            categoryDisplay.innerText = randomCategory;
+            mainBtn.style.display = 'none';
+            container.classList.add('ticking');
+            statusText.innerText = "SZYBKO! Podaj dalej!";
+
+            const duration = Math.floor(Math.random() * 30000) + 15000;
+            const startTime = Date.now();
+
+            const tickInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                
+                playSound(440, 0.1);
+                
+                if (elapsed >= duration) {
+                    clearInterval(tickInterval);
+                    explode();
+                }
+            }, 800); 
+        }
+
+        function explode() {
+            gameActive = false;
+            container.classList.remove('ticking');
+            overlay.style.display = 'flex';
+            
+            playSound(100, 0.8, 'sawtooth');
+            
+            if (navigator.vibrate) {
+                navigator.vibrate([500, 110, 500, 110, 800]);
+            }
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                categoryDisplay.innerText = "PRZEGRANA!";
+                statusText.innerText = "Osoba trzymająca telefon odpada!";
+                mainBtn.innerText = "Zagraj jeszcze raz";
+                mainBtn.style.display = 'block';
+            }, 3000);
+        }
+
+        mainBtn.addEventListener('click', () => {
+            if (!gameActive) startGame();
+        });
+    </script>
+</body>
+</html>
