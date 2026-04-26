@@ -1,0 +1,12 @@
+{
+  "target": "programista",
+  "matches": {
+    "programista": 0,
+    "informatyk": 5,
+    "kod": 15,
+    "komputer": 25,
+    "klawiatura": 40,
+    "praca": 100,
+    "kawa": 150
+  }
+}
