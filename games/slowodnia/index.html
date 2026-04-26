@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Słowo Dnia</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: #f4f4f9; }
+        h1 { text-align: center; color: #333; }
+        .input-area { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; }
+        button { padding: 10px 20px; background: #5cb85c; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        
+        .history { display: flex; flex-direction: column; gap: 5px; }
+        .guess-row { display: flex; justify-content: space-between; padding: 10px; background: white; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .rank { font-weight: bold; color: #555; }
+        .word { text-transform: lowercase; }
+        
+        .winner { background: #dff0d8; border: 2px solid #3c763d; }
+        .error-msg { color: red; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h1>Słowo Dnia 🔍</h1>
+    <p style="text-align: center;">Odgadnij ukryte słowo. Im niższy numer, tym bliżej jesteś!</p>
+
+    <div class="input-area">
+        <input type="text" id="wordInput" placeholder="Wpisz słowo..." autofocus>
+        <button onclick="makeGuess()">Sprawdź</button>
+    </div>
+
+    <div id="message" class="error-msg"></div>
+
+    <div id="history" class="history">
+        </div>
+
+    <script>
+        let gameData = null;
+        let guesses = [];
+
+        // Pobiera dzisiejszą datę w formacie YYYY-MM-DD (uwzględniając strefę czasową)
+        function getTodayDateString() {
+            const dzisiaj = new Date();
+            const offset = dzisiaj.getTimezoneOffset() * 60000;
+            return new Date(dzisiaj.getTime() - offset).toISOString().split('T')[0];
+        }
+
+        async function loadGame() {
+            const dzisiaj = getTodayDateString();
+            const url = `dane/${dzisiaj}.json`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Brak pliku na dziś");
+                gameData = await response.json();
+            } catch (err) {
+                document.getElementById('message').innerText = `Gra dzisiaj odpoczywa! Brak pliku: ${dzisiaj}.json`;
+                document.getElementById('wordInput').disabled = true;
+            }
+        }
+
+        function makeGuess() {
+            const input = document.getElementById('wordInput');
+            const word = input.value.toLowerCase().trim();
+
+            if (!word || !gameData) return;
+            if (guesses.find(g => g.word === word)) {
+                alert("To słowo już było!");
+                return;
+            }
+
+            let distance = gameData.matches[word];
+            
+            // Jeśli słowa nie ma w bazie, dajemy duży losowy wynik
+            if (distance === undefined) {
+                distance = 1000 + Math.floor(Math.random() * 500);
+            }
+
+            guesses.push({ word, distance });
+            guesses.sort((a, b) => a.distance - b.distance);
+
+            updateUI();
+            input.value = '';
+        }
+
+        function updateUI() {
+            const historyDiv = document.getElementById('history');
+            historyDiv.innerHTML = '';
+
+            guesses.forEach(g => {
+                const isWinner = g.distance === 0;
+                const row = document.createElement('div');
+                row.className = `guess-row ${isWinner ? 'winner' : ''}`;
+                row.innerHTML = `
+                    <span class="word">${g.word}</span>
+                    <span class="rank">${isWinner ? 'ZWYCIĘSTWO! 🎉' : g.distance}</span>
+                `;
+                historyDiv.appendChild(row);
+            });
+        }
+
+        document.getElementById('wordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') makeGuess();
+        });
+
+        loadGame();
+    </script>
+</body>
+</html>
