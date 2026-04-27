@@ -34,6 +34,15 @@
             scrollbar-width: none;
         }
 
+        /* --- PRZYCISK POWROTU --- */
+        .back-button {
+            position: fixed; top: 20px; left: 20px; background: #3e3e5e; color: #fff;
+            padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 50; transition: 0.2s;
+            border: 2px solid #5d5d8a; display: flex; align-items: center; gap: 8px;
+        }
+        .back-button:hover { background: #5d5d8a; transform: translateY(-2px); }
+
         /* --- IKONA SKLEPU --- */
         .shop-trigger {
             position: fixed; top: 20px; right: 20px; background: #ffb300; border: 3px solid #ffa000;
@@ -126,6 +135,8 @@
     </style>
 </head>
 <body>
+
+    <a href="https://obidobi.pl/games" class="back-button">🔙 Powrót</a>
 
     <div class="shop-trigger" id="shopTriggerBtn" onclick="openShop()">🏪</div>
 
