@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wielki Ogród Clicker</title>
+    <style>
+        :root {
+            --panel: #2a2a40;
+            --text: #e0e0e0;
+            --accent: #4caf50;
+            --leaf: #81c784;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #2e7d32 url('grass.png') repeat;
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* --- UKRYCIE BIAŁEGO PASKA PRZEWIJANIA --- */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* --- IKONA SKLEPU --- */
+        .shop-trigger {
+            position: fixed; top: 20px; right: 20px; background: #ffb300; border: 3px solid #ffa000;
+            border-radius: 50%; width: 70px; height: 70px; font-size: 35px; display: flex;
+            justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.8); z-index: 50; transition: transform 0.2s;
+        }
+        .shop-trigger:hover { animation: ringBell 0.4s ease-in-out infinite alternate; background: #ffca28; }
+        @keyframes ringBell { 0% { transform: rotate(-15deg); } 100% { transform: rotate(15deg); } }
+
+        /* --- OBSZAR GRY --- */
+        .game-area {
+            width: 100%; max-width: 650px; padding: 20px; margin: 20px;
+            background: rgba(30, 30, 47, 0.9);
+            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; align-items: center; position: relative;
+            overflow-y: auto; border: 2px solid #3e3e5e;
+        }
+
+        .header-stats { text-align: center; margin-bottom: 20px; }
+        .score-box { font-size: 3.5em; font-weight: bold; color: var(--leaf); text-shadow: 0 0 15px rgba(129, 199, 132, 0.7); }
+        .pps-box { font-size: 1.2em; color: #ccc; }
+
+        .clicker-btn {
+            font-size: 80px; background: rgba(255, 255, 255, 0.05); border: 4px dashed var(--accent);
+            border-radius: 50%; width: 180px; height: 180px; cursor: pointer; transition: transform 0.05s;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 30px rgba(76, 175, 80, 0.3); margin-bottom: 30px;
+        }
+        .clicker-btn:active { transform: scale(0.95); }
+
+        /* --- OGRÓD --- */
+        .garden-bed {
+            width: 100%; background: #3e2723; border: 8px solid #5d4037; border-radius: 15px;
+            padding: 15px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.6); box-sizing: border-box;
+        }
+        .plant-slot {
+            background: #4e342e; border-radius: 8px; aspect-ratio: 1; display: flex;
+            justify-content: center; align-items: center; font-size: 35px; position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5); transition: 0.3s;
+        }
+        .plant-slot.empty { opacity: 0.3; filter: grayscale(1); }
+        .plant-count-badge {
+            position: absolute; bottom: -5px; right: -5px; background: var(--accent); color: white;
+            font-size: 12px; font-weight: bold; padding: 3px 6px; border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.8); border: 1px solid #1e1e2f;
+        }
+
+        /* --- SKRZYNIA --- */
+        .chest-area { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .chest-btn {
+            background: #ffb300; border: none; padding: 15px 30px; font-size: 1.2em;
+            font-weight: bold; color: #000; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.5);
+        }
+        .chest-btn:hover:not(:disabled) { background: #ffca28; transform: translateY(-2px); }
+        .chest-btn:disabled { background: #444; color: #777; cursor: not-allowed; box-shadow: none; }
+        .buff-display { background: rgba(255, 0, 0, 0.2); border: 1px solid #ff5252; color: #ff5252; padding: 10px 20px; border-radius: 5px; font-weight: bold; display: none; animation: pulse 1s infinite alternate; }
+
+        /* --- MODALE --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-box {
+            background: var(--panel); padding: 30px; border-radius: 15px;
+            border: 2px solid var(--accent); max-width: 550px; width: 95%;
+            max-height: 85vh; display: flex; flex-direction: column; position: relative;
+        }
+        .modal-title { font-size: 2em; margin-bottom: 15px; color: #ffb300; text-align: center;}
+        .close-btn { position: absolute; top: 15px; right: 15px; background: #ff5252; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; font-weight: bold; cursor: pointer; font-size: 18px; }
+
+        .shop-content { overflow-y: auto; padding-right: 10px; }
+        .section-title { padding: 10px; background: #3e3e5e; font-weight: bold; border-radius: 5px; margin: 10px 0; text-align: center;}
+        
+        .upgrade { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #3e3e5e; cursor: pointer; transition: 0.2s; }
+        .upgrade:hover { background: rgba(255,255,255,0.05); }
+        .upgrade.locked { opacity: 0.4; filter: grayscale(1); }
+        .upg-icon { font-size: 2em; margin-right: 15px; }
+        .upg-info { flex: 1; }
+        .upg-name { font-weight: bold; font-size: 1.1em; }
+        .upg-desc { font-size: 0.8em; color: #aaa; }
+        .upg-cost { font-weight: bold; color: #ff5252; margin-top: 5px; }
+        .upg-count { font-size: 1.3em; font-weight: bold; color: var(--accent); }
+
+        .floating-number { position: absolute; font-weight: bold; font-size: 1.5em; color: #fff; pointer-events: none; text-shadow: 0 0 5px rgba(0,0,0,0.8); animation: floatUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index: 100; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1.5); opacity: 0; } }
+        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+    </style>
+</head>
+<body>
+
+    <div class="shop-trigger" id="shopTriggerBtn" onclick="openShop()">🏪</div>
+
+    <div class="game-area">
+        <div class="header-stats">
+            <div class="score-box"><span id="score">0</span> 🍃</div>
+            <div class="pps-box">Zarobek: <b id="pps">0</b> 🍃/s | Moc: <b id="click-power">1</b></div>
+        </div>
+
+        <button class="clicker-btn" onclick="manualClick(event)">🌱</button>
+
+        <div class="garden-bed" id="garden"></div>
+
+        <div class="chest-area">
+            <div id="buff-timer" class="buff-display">AKTYWNY BUFF: 2x (00:00)</div>
+            <button id="chest-btn" class="chest-btn" onclick="openChest()">🎁 Otwórz Skrzynię!</button>
+            <p style="font-size: 0.9em; color: #ccc;">Gotowa za: <b id="chest-cooldown">Gotowa!</b></p>
+        </div>
+    </div>
+
+    <div id="shop-modal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeShop()">X</button>
+            <div class="modal-title">Sklep Ogrodniczy</div>
+            <div class="shop-content">
+                <div class="section-title">Narzędzia (Siła Kliknięcia)</div>
+                <div id="tools-shop"></div>
+                <div class="section-title">Rośliny (Automatyczny Zarobek)</div>
+                <div id="plants-shop"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="chest-modal" class="modal-overlay">
+        <div class="modal-box" style="text-align: center; max-width: 400px;">
+            <div class="modal-title">🎉 Skrzynia Otwarta! 🎉</div>
+            <div id="modal-prize" style="font-size: 1.4em; margin: 20px 0; color: #fff; font-weight: bold;">---</div>
+            <button style="background: var(--accent); color: white; border: none; padding: 12px 25px; font-size: 1.1em; border-radius: 5px; cursor: pointer; margin-top: 10px;" onclick="closeChestModal()">Super!</button>
+        </div>
+    </div>
+
+    <script>
+        const bellSound = new Audio('dzwonek.mp3'); 
+        document.getElementById('shopTriggerBtn').addEventListener('mouseenter', () => {
+            bellSound.currentTime = 0; 
+            bellSound.play().catch(e => {});
+        });
+
+        function formatNumber(num) {
+            if (num < 1000) return Math.floor(num);
+            const suffixes = ["", "k", "M", "mld", "bln", "bld", "tryl", "tryliard", "kwadrylion"];
+            let tier = Math.floor(Math.log10(Math.abs(num)) / 3);
+            if (tier === 0) return Math.floor(num);
+            if (tier >= suffixes.length) tier = suffixes.length - 1; 
+            
+            let scale = Math.pow(10, tier * 3);
+            let scaled = num / scale;
+            return scaled.toFixed(2) + suffixes[tier];
+        }
+
+        const ITEMS = {
+            tools: {
+                t1: { name: "Konewka", icon: "💦", desc: "Zwiększa moc", baseCost: 50, power: 1 },
+                t2: { name: "Nawóz", icon: "💩", desc: "Zwiększa moc", baseCost: 500, power: 10 },
+                t3: { name: "Złoty Szpadel", icon: "⛏️", desc: "Zwiększa moc", baseCost: 7500, power: 150 },
+                t4: { name: "Magiczna Woda", icon: "🧪", desc: "Zwiększa moc", baseCost: 100000, power: 2500 },
+                t5: { name: "Krasnal-Cyborg", icon: "🤖", desc: "Zwiększa moc", baseCost: 5000000, power: 100000 },
+                t6: { name: "Dron Zapylający", icon: "🚁", desc: "Zwiększa moc", baseCost: 500000000, power: 10000000 },
+                t7: { name: "Satelita Ogrodnicza", icon: "🛰️", desc: "Zwiększa moc", baseCost: 50000000000, power: 1000000000 },
+                t8: { name: "Wymiarowy Sekator", icon: "✂️", desc: "Zwiększa moc", baseCost: 5000000000000, power: 150000000000 }
+            },
+            plants: {
+                p1: { name: "Stokrotka", icon: "🌼", baseCost: 15, power: 1 },
+                p2: { name: "Tulipan", icon: "🌷", baseCost: 200, power: 15 },
+                p3: { name: "Słonecznik", icon: "🌻", baseCost: 3000, power: 200 },
+                p4: { name: "Róża", icon: "🌹", baseCost: 25000, power: 1500 },
+                p5: { name: "Drzewko Bonsai", icon: "🌳", baseCost: 250000, power: 12000 },
+                p6: { name: "Drzewo Życia", icon: "✨", baseCost: 5000000, power: 150000 },
+                p7: { name: "Magiczna Fasola", icon: "🌱", baseCost: 100000000, power: 3000000 },
+                p8: { name: "Kryształowa Palma", icon: "🌴", baseCost: 5000000000, power: 150000000 },
+                p9: { name: "Drzewo Złota", icon: "💰", baseCost: 250000000000, power: 8000000000 },
+                p10: { name: "Kosmiczny Kaktus", icon: "🌵", baseCost: 10000000000000, power: 350000000000 },
+                p11: { name: "Galaktyczna Orchidea", icon: "🌌", baseCost: 500000000000000, power: 20000000000000 },
+                p12: { name: "Supernowa Paproć", icon: "☄️", baseCost: 25000000000000000, power: 1000000000000000 },
+                p13: { name: "Wymiarowy Grzyb", icon: "🍄", baseCost: 1000000000000000000, power: 50000000000000000 },
+                p14: { name: "Yggdrasil", icon: "🌲", baseCost: 50000000000000000000, power: 3000000000000000000 },
+                p15: { name: "Nieskończony Lotos", icon: "🏵️", baseCost: 1e23, power: 5e21 }
+            }
+        };
+
+        let defaultInventory = {};
+        for(let id in ITEMS.tools) defaultInventory[id] = 0;
+        for(let id in ITEMS.plants) defaultInventory[id] = 0;
+
+        let game = {
+            score: 0,
+            inventory: { ...defaultInventory },
+            lastChestTime: 0,
+            activeBuff: { multiplier: 1, expires: 0, name: "" }
+        };
+
+        let calculatedPPS = 0;
+        let calculatedClickPower = 1;
+
+        function openShop() { document.getElementById('shop-modal').style.display = 'flex'; updateShopUI(); }
+        function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+
+        function initShop() {
+            const toolsShop = document.getElementById('tools-shop');
+            const plantsShop = document.getElementById('plants-shop');
+            for (let id in ITEMS.tools) { toolsShop.innerHTML += createShopItem(id, ITEMS.tools[id], 'tools'); }
+            for (let id in ITEMS.plants) { plantsShop.innerHTML += createShopItem(id, ITEMS.plants[id], 'plants'); }
+        }
+
+        function createShopItem(id, data, category) {
+            let desc = category === 'plants' ? `${formatNumber(data.power)} 🍃/s` : data.desc;
+            return `
+                <div class="upgrade" id="item-${id}" onclick="buyItem('${id}')">
+                    <div class="upg-icon">${data.icon}</div>
+                    <div class="upg-info">
+                        <div class="upg-name">${data.name}</div>
+                        <div class="upg-desc">${desc}</div>
+                        <div class="upg-cost" id="cost-${id}">Koszt: 0</div>
+                    </div>
+                    <div class="upg-count" id="count-${id}">0</div>
+                </div>
+            `;
+        }
+
+        function getCost(id) {
+            let item = ITEMS.tools[id] || ITEMS.plants[id];
+            return Math.floor(item.baseCost * Math.pow(1.15, game.inventory[id] || 0));
+        }
+
+        function buyItem(id) {
+            let cost = getCost(id);
+            if (game.score >= cost) {
+                game.score -= cost;
+                game.inventory[id]++;
+                recalculateStats();
+                updateShopUI();
+                rebuildGarden();
+                saveGame();
+            }
+        }
+
+        function rebuildGarden() {
+            const garden = document.getElementById('garden');
+            garden.innerHTML = '';
+
+            for (let id in ITEMS.plants) {
+                let count = game.inventory[id];
+                let item = ITEMS.plants[id];
+                let isEmpty = count === 0;
+                
+                let slotHTML = `
+                    <div class="plant-slot ${isEmpty ? 'empty' : ''}">
+                        ${isEmpty ? '🕳️' : item.icon}
+                        ${!isEmpty ? `<div class="plant-count-badge">x${formatNumber(count)}</div>` : ''}
+                    </div>
+                `;
+                garden.innerHTML += slotHTML;
+            }
+        }
+
+        function recalculateStats() {
+            calculatedClickPower = 1;
+            for(let id in ITEMS.tools) { calculatedClickPower += game.inventory[id] * ITEMS.tools[id].power; }
+            calculatedPPS = 0;
+            for(let id in ITEMS.plants) { calculatedPPS += game.inventory[id] * ITEMS.plants[id].power; }
+        }
+
+        function manualClick(e) {
+            let mult = game.activeBuff.expires > Date.now() ? game.activeBuff.multiplier : 1;
+            let earned = calculatedClickPower * mult;
+            game.score += earned;
+            
+            let rect = e.target.getBoundingClientRect();
+            spawnFloatingText(e.clientX || rect.left + rect.width / 2, e.clientY || rect.top + rect.height / 2, `+${formatNumber(earned)}`, mult > 1 ? '#ffea00' : '#81c784');
+            updateUI();
+        }
+
+        function spawnFloatingText(x, y, text, color) {
+            const el = document.createElement('div');
+            el.className = 'floating-number'; el.innerText = text; el.style.left = `${x - 20}px`; el.style.top = `${y - 20}px`; el.style.color = color;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        function openChest() {
+            const COOLDOWN = 43200000;
+            const now = Date.now();
+            if (now - game.lastChestTime >= COOLDOWN) {
+                game.lastChestTime = now;
+                const rng = Math.random();
+                let prize = "";
+                
+                if (rng < 0.3) {
+                    game.activeBuff = { multiplier: 2, expires: now + 600000, name: "2x Produkcja (10 min)" };
+                    prize = "🌟 Podwójna produkcja na 10 minut!";
+                } else if (rng < 0.5) {
+                    game.activeBuff = { multiplier: 5, expires: now + 120000, name: "5x Produkcja (2 min)" };
+                    prize = "🔥 PIĘCIOKROTNA produkcja na 2 minuty!";
+                } else if (rng < 0.8) {
+                    let bonus = calculatedPPS * 3600 || 500;
+                    game.score += bonus;
+                    prize = `💰 Deszcz listków! Wygrywasz +${formatNumber(bonus)} 🍃`;
+                } else {
+                    let bonus = game.score;
+                    game.score += bonus;
+                    prize = `🏦 Bank rozbity! Podwajamy Twój portfel (+${formatNumber(bonus)} 🍃)`;
+                }
+
+                document.getElementById('modal-prize').innerText = prize;
+                document.getElementById('chest-modal').style.display = 'flex';
+                
+                saveGame();
+                updateUI();
+            }
+        }
+
+        function closeChestModal() { document.getElementById('chest-modal').style.display = 'none'; }
+
+        setInterval(() => {
+            const now = Date.now();
+            let mult = 1;
+            
+            if (game.activeBuff.expires > now) {
+                mult = game.activeBuff.multiplier;
+                document.getElementById('buff-timer').style.display = 'block';
+                let rem = Math.floor((game.activeBuff.expires - now) / 1000);
+                document.getElementById('buff-timer').innerText = `🔥 ${game.activeBuff.name} (${Math.floor(rem/60)}:${rem%60 < 10 ? '0':''}${rem%60})`;
+            } else {
+                document.getElementById('buff-timer').style.display = 'none';
+            }
+
+            if (calculatedPPS > 0) {
+                let earned = calculatedPPS * mult;
+                game.score += earned;
+                const garden = document.getElementById('garden');
+                const rect = garden.getBoundingClientRect();
+                spawnFloatingText(rect.left + (Math.random() * rect.width), rect.top + (Math.random() * rect.height), `+${formatNumber(earned)}`, '#fff');
+            }
+
+            const COOLDOWN = 43200000;
+            const btn = document.getElementById('chest-btn');
+            const txt = document.getElementById('chest-cooldown');
+            if (now - game.lastChestTime >= COOLDOWN) {
+                btn.disabled = false; txt.innerText = "Gotowa!"; txt.style.color = "#4caf50";
+            } else {
+                btn.disabled = true;
+                let remMs = COOLDOWN - (now - game.lastChestTime);
+                let h = Math.floor(remMs / 3600000);
+                let m = Math.floor((remMs % 3600000) / 60000);
+                let s = Math.floor((remMs % 60000) / 1000);
+                txt.innerText = `${h}h ${m}m ${s}s`;
+                txt.style.color = "#ccc";
+            }
+
+            updateUI();
+            saveGame();
+        }, 1000);
+
+        function updateUI() {
+            document.getElementById('score').innerText = formatNumber(game.score);
+            let mult = game.activeBuff.expires > Date.now() ? game.activeBuff.multiplier : 1;
+            document.getElementById('pps').innerText = formatNumber(calculatedPPS * mult);
+            document.getElementById('click-power').innerText = formatNumber(calculatedClickPower * mult);
+            
+            if(document.getElementById('shop-modal').style.display === 'flex') updateShopUI();
+        }
+
+        function updateShopUI() {
+            for (let id in ITEMS.tools) {
+                let cost = getCost(id);
+                document.getElementById(`cost-${id}`).innerText = `Koszt: ${formatNumber(cost)}`;
+                document.getElementById(`count-${id}`).innerText = game.inventory[id];
+                document.getElementById(`item-${id}`).classList.toggle('locked', game.score < cost);
+            }
+            for (let id in ITEMS.plants) {
+                let cost = getCost(id);
+                document.getElementById(`cost-${id}`).innerText = `Koszt: ${formatNumber(cost)}`;
+                document.getElementById(`count-${id}`).innerText = game.inventory[id];
+                document.getElementById(`item-${id}`).classList.toggle('locked', game.score < cost);
+            }
+        }
+
+        function saveGame() { localStorage.setItem('ogrodV4', JSON.stringify(game)); }
+        
+        function loadGame() {
+            let saved = localStorage.getItem('ogrodV4');
+            if (saved) {
+                let p = JSON.parse(saved);
+                game.score = p.score || 0;
+                game.lastChestTime = p.lastChestTime || 0;
+                game.activeBuff = p.activeBuff || { multiplier: 1, expires: 0, name: "" };
+                if (p.inventory) {
+                    for(let id in game.inventory) {
+                        if(p.inventory[id] !== undefined) game.inventory[id] = p.inventory[id];
+                    }
+                }
+            }
+            recalculateStats();
+            rebuildGarden();
+            updateUI();
+        }
+
+        initShop();
+        loadGame();
+    </script>
+</body>
+</html>
