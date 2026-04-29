@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Cyber-Typist Warrior</title>
+    <style>
+        :root {
+            --pink: #ff007f;
+            --black: #000000;
+            --dark-gray: #1a1a1a;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('wpm_bg.png') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Kontener główny */
+        #game-container {
+            width: 800px;
+            height: 600px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 3px solid var(--pink);
+            box-shadow: 0 0 20px var(--pink);
+            position: relative;
+        }
+
+        /* UI Elementy */
+        .ui-panel { position: absolute; padding: 10px; color: var(--pink); font-weight: bold; }
+        #timer { top: 10px; right: 10px; font-size: 24px; }
+        #stats { bottom: 10px; left: 10px; display: flex; gap: 20px; }
+        #btn-back { top: 10px; left: 10px; cursor: pointer; border: 1px solid var(--pink); padding: 5px 10px; }
+        #btn-back:hover { background: var(--pink); color: black; }
+
+        /* Ekrany (Menu, Gra, Wyniki) */
+        .screen {
+            position: absolute; width: 100%; height: 100%;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--black);
+        }
+        .active { display: flex; }
+
+        .level-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px;
+        }
+        button {
+            background: transparent; border: 2px solid var(--pink); color: var(--pink);
+            padding: 10px 20px; cursor: pointer; font-size: 18px; transition: 0.3s;
+        }
+        button:hover { background: var(--pink); color: black; box-shadow: 0 0 15px var(--pink); }
+
+        /* Słowa na Canvasie */
+        #game-canvas { display: block; background: #050505; }
+        
+        .result-box { text-align: center; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="game-ui" style="display: none;">
+        <div id="btn-back" onclick="showScreen('menu')">← Powrót</div>
+        <div id="timer" class="ui-panel">00:30</div>
+        <div id="stats" class="ui-panel">
+            <span>Wynik: <span id="score-val">0</span></span>
+            <span>WPM: <span id="wpm-val">0</span></span>
+        </div>
+    </div>
+
+    <div id="screen-menu" class="screen active">
+        <h1 style="color: var(--pink);">Cyber-Typist Warrior</h1>
+        <button onclick="window.location.href='https://obidobi.pl/games'">Powrót do portalu</button>
+        <div class="level-grid" id="level-buttons"></div>
+        <button onclick="showRecords()">🏆 Rekordy Świata</button>
+    </div>
+
+    <div id="screen-game" class="screen" style="background: transparent;">
+        <canvas id="game-canvas" width="800" height="500"></canvas>
+        <input type="text" id="word-input" autocomplete="off" autofocus 
+               style="width: 100%; height: 50px; background: #111; color: var(--pink); border: none; text-align: center; font-size: 24px; outline: none;">
+    </div>
+
+    <div id="screen-summary" class="screen">
+        <h2 style="color: var(--pink);">Koniec Poziomu!</h2>
+        <div class="result-box" id="result-text"></div>
+        <button onclick="showScreen('menu')" style="margin-top: 20px;">Wróć do menu</button>
+    </div>
+
+    <div id="screen-records" class="screen">
+        <h2 style="color: var(--pink);">Top 10 Rekordów</h2>
+        <p style="font-size: 12px;">Wzór: WPM * Accuracy% = Wynik Końcowy</p>
+        <div id="records-list" style="width: 80%; overflow-y: auto;"></div>
+        <button onclick="showScreen('menu')">Powrót</button>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+    // --- KONFIGURACJA GRY ---
+    const wordsPool = ["javascript", "hacker", "cyber", "network", "system", "code", "pixel", "binary", "typing", "speed", "laser", "neon", "data", "web", "matrix", "cloud", "server", "logic", "array", "style"];
+    let currentLevel = 1;
+    let score = 0;
+    let wordsTyped = 0;
+    let totalKeys = 0;
+    let correctKeys = 0;
+    let timeLeft = 30;
+    let gameInterval, timerInterval;
+    let activeWords = [];
+
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const input = document.getElementById('word-input');
+
+    // --- LOGIKA UI ---
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-' + id).classList.add('active');
+        document.getElementById('game-ui').style.display = (id === 'game') ? 'block' : 'none';
+        if(id === 'menu') createLevelButtons();
+    }
+
+    function createLevelButtons() {
+        const container = document.getElementById('level-buttons');
+        container.innerHTML = '';
+        for(let i=1; i<=10; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = i;
+            btn.onclick = () => startLevel(i);
+            container.appendChild(btn);
+        }
+    }
+
+    // --- MECHANIKA GRY ---
+    function startLevel(lv) {
+        currentLevel = lv;
+        score = 0;
+        wordsTyped = 0;
+        totalKeys = 0;
+        correctKeys = 0;
+        timeLeft = 30;
+        activeWords = [];
+        input.value = '';
+        showScreen('game');
+        input.focus();
+
+        const speed = 1 + (currentLevel * 0.4); // Prędkość rośnie z levelem
+        const spawnRate = 2000 - (currentLevel * 150); // Słowa pojawiają się częściej
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').innerText = `00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
+            if(timeLeft <= 0) endGame();
+        }, 1000);
+
+        gameInterval = setInterval(() => {
+            const word = wordsPool[Math.floor(Math.random()*wordsPool.length)];
+            activeWords.push({
+                text: word,
+                x: Math.random() * (canvas.width - 100),
+                y: 0
+            });
+        }, spawnRate);
+
+        requestAnimationFrame(update);
+    }
+
+    function update() {
+        if(timeLeft <= 0) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = '#ff007f';
+        ctx.font = '20px Monospace';
+
+        activeWords.forEach((w, index) => {
+            w.y += 1 + (currentLevel * 0.3);
+            ctx.fillText(w.text, w.x, w.y);
+
+            if(w.y > canvas.height) {
+                activeWords.splice(index, 1);
+            }
+        });
+
+        // WPM obliczany w czasie rzeczywistym
+        const elapsed = (30 - timeLeft) / 60;
+        const wpm = elapsed > 0 ? Math.round(wordsTyped / elapsed) : 0;
+        document.getElementById('wpm-val').innerText = wpm;
+
+        requestAnimationFrame(update);
+    }
+
+    input.addEventListener('input', () => {
+        totalKeys++;
+        const val = input.value.trim().toLowerCase();
+        const foundIndex = activeWords.findIndex(w => w.text === val);
+        
+        if(foundIndex !== -1) {
+            correctKeys += val.length;
+            wordsTyped++;
+            score += 10;
+            document.getElementById('score-val').innerText = score;
+            activeWords.splice(foundIndex, 1);
+            input.value = '';
+        }
+    });
+
+    function endGame() {
+        clearInterval(gameInterval);
+        clearInterval(timerInterval);
+        
+        const accuracy = totalKeys > 0 ? Math.round((correctKeys / totalKeys) * 100) : 0;
+        const wpm = Math.round(wordsTyped / 0.5); // 30s = 0.5 min
+        const finalScore = Math.round(wpm * (accuracy / 100));
+
+        document.getElementById('result-text').innerHTML = `
+            <p>WPM: ${wpm}</p>
+            <p>Celność: ${accuracy}%</p>
+            <p style="font-size: 24px; color: var(--pink)">Wynik Końcowy: ${finalScore}</p>
+        `;
+
+        checkHighscore(finalScore, currentLevel);
+        showScreen('summary');
+    }
+
+    // --- MIEJSCE NA FIREBASE (Placeholder) ---
+    function checkHighscore(score, lv) {
+        // Tu dodasz logikę sprawdzania Top 10 w Firebase
+        // Jeśli score > najniższy w top 10:
+        // const nick = prompt("Nowy Rekord! Podaj swój nick:");
+        // zapisz do Firebase...
+    }
+
+    function showRecords() {
+        showScreen('records');
+        document.getElementById('records-list').innerHTML = "Łączenie z bazą...";
+        // Tu dodasz pobieranie z Firebase
+    }
+
+    createLevelButtons();
+</script>
+</body>
+</html>
