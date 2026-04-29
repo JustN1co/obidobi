@@ -3,250 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <title>Cyber-Typist Warrior</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
     <style>
         :root {
             --pink: #ff007f;
             --black: #000000;
-            --dark-gray: #1a1a1a;
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background: url('wpm_bg.png') no-repeat center center fixed;
             background-size: cover;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Courier New', Courier, monospace;
             color: white;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
         }
 
-        /* Kontener główny */
         #game-container {
-            width: 800px;
-            height: 600px;
-            background: rgba(0, 0, 0, 0.85);
+            width: 900px; height: 650px;
+            background: rgba(0, 0, 0, 0.95);
             border: 3px solid var(--pink);
-            box-shadow: 0 0 20px var(--pink);
+            box-shadow: 0 0 30px var(--pink);
             position: relative;
+            display: flex; flex-direction: column;
         }
 
-        /* UI Elementy */
-        .ui-panel { position: absolute; padding: 10px; color: var(--pink); font-weight: bold; }
-        #timer { top: 10px; right: 10px; font-size: 24px; }
-        #stats { bottom: 10px; left: 10px; display: flex; gap: 20px; }
-        #btn-back { top: 10px; left: 10px; cursor: pointer; border: 1px solid var(--pink); padding: 5px 10px; }
-        #btn-back:hover { background: var(--pink); color: black; }
-
-        /* Ekrany (Menu, Gra, Wyniki) */
         .screen {
-            position: absolute; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            background: var(--black);
+            z-index: 10;
         }
         .active { display: flex; }
 
-        .level-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px;
-        }
+        h1, h2, h3 { color: var(--pink); text-align: center; text-transform: uppercase; }
+
         button {
             background: transparent; border: 2px solid var(--pink); color: var(--pink);
-            padding: 10px 20px; cursor: pointer; font-size: 18px; transition: 0.3s;
+            padding: 12px 24px; margin: 10px; cursor: pointer; font-size: 18px;
+            font-weight: bold; font-family: 'Courier New', Courier, monospace;
+            transition: 0.2s;
         }
-        button:hover { background: var(--pink); color: black; box-shadow: 0 0 15px var(--pink); }
+        button:hover { background: var(--pink); color: var(--black); box-shadow: 0 0 15px var(--pink); }
 
-        /* Słowa na Canvasie */
-        #game-canvas { display: block; background: #050505; }
+        .level-grid {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 30px 0;
+        }
+
+        #game-ui {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 5; display: none;
+        }
+        .top-bar {
+            display: flex; justify-content: flex-end; padding: 15px 25px;
+            pointer-events: auto;
+        }
+        .bottom-bar {
+            position: absolute; bottom: 70px; left: 0; width: 100%;
+            display: flex; justify-content: center; gap: 40px;
+            font-size: 22px; font-weight: bold; color: var(--pink);
+        }
         
-        .result-box { text-align: center; line-height: 1.6; }
+        #timer { font-size: 28px; font-weight: bold; color: var(--pink); }
+
+        #game-canvas { display: block; width: 100%; height: calc(100% - 60px); }
+
+        #word-input {
+            width: 100%; height: 60px; background: #111; color: var(--pink);
+            border: none; border-top: 2px solid var(--pink); text-align: center;
+            font-size: 28px; font-family: 'Courier New', Courier, monospace;
+            outline: none; position: absolute; bottom: 0;
+        }
+
+        #records-container {
+            width: 80%; max-height: 400px; overflow-y: auto; text-align: left;
+            border: 1px solid var(--pink); padding: 15px; margin-top: 10px;
+        }
+        .record-entry {
+            display: flex; justify-content: space-between;
+            border-bottom: 1px dashed #333; padding: 5px 0; font-size: 18px;
+        }
+        .record-entry span:nth-child(2) { color: var(--pink); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div id="game-ui" style="display: none;">
-        <div id="btn-back" onclick="showScreen('menu')">← Powrót</div>
-        <div id="timer" class="ui-panel">00:30</div>
-        <div id="stats" class="ui-panel">
-            <span>Wynik: <span id="score-val">0</span></span>
-            <span>WPM: <span id="wpm-val">0</span></span>
+    <div id="game-ui">
+        <div class="top-bar"><div id="timer">00:30</div></div>
+        <div class="bottom-bar">
+            <div>Wynik: <span id="score-val">0</span></div>
+            <div>WPM: <span id="wpm-val">0</span></div>
         </div>
     </div>
 
-    <div id="screen-menu" class="screen active">
-        <h1 style="color: var(--pink);">Cyber-Typist Warrior</h1>
+    <div id="screen-menu" class="screen active" style="background: rgba(0,0,0,0.9);">
+        <h1>Cyber-Typist Warrior</h1>
         <button onclick="window.location.href='https://obidobi.pl/games'">Powrót do portalu</button>
         <div class="level-grid" id="level-buttons"></div>
-        <button onclick="showRecords()">🏆 Rekordy Świata</button>
+        <button onclick="showScreen('records')">🏆 Rekordy Świata</button>
     </div>
 
-    <div id="screen-game" class="screen" style="background: transparent;">
-        <canvas id="game-canvas" width="800" height="500"></canvas>
-        <input type="text" id="word-input" autocomplete="off" autofocus 
-               style="width: 100%; height: 50px; background: #111; color: var(--pink); border: none; text-align: center; font-size: 24px; outline: none;">
+    <div id="screen-game" class="screen">
+        <canvas id="game-canvas" width="900" height="590"></canvas>
+        <input type="text" id="word-input" autocomplete="off" spellcheck="false" placeholder="pisz tutaj...">
     </div>
 
-    <div id="screen-summary" class="screen">
-        <h2 style="color: var(--pink);">Koniec Poziomu!</h2>
-        <div class="result-box" id="result-text"></div>
-        <button onclick="showScreen('menu')" style="margin-top: 20px;">Wróć do menu</button>
+    <div id="screen-summary" class="screen" style="background: rgba(0,0,0,0.95);">
+        <h2>Koniec Poziomu <span id="sum-level"></span>!</h2>
+        <div style="font-size: 22px; line-height: 2; margin: 20px 0; text-align: center;">
+            <p>Słowa na minutę (WPM): <span id="sum-wpm" style="color: var(--pink);">0</span></p>
+            <p>Celność: <span id="sum-acc" style="color: var(--pink);">0</span>%</p>
+            <hr style="border-color: #333;">
+            <h3 style="font-size: 32px;">Wynik Całościowy: <span id="sum-score" style="color: white;">0</span></h3>
+        </div>
+        <div id="highscore-msg" style="color: yellow; font-weight: bold; margin-bottom: 10px;"></div>
+        <button onclick="backToMenu()">Wróć do listy leveli</button>
     </div>
 
-    <div id="screen-records" class="screen">
-        <h2 style="color: var(--pink);">Top 10 Rekordów</h2>
-        <p style="font-size: 12px;">Wzór: WPM * Accuracy% = Wynik Końcowy</p>
-        <div id="records-list" style="width: 80%; overflow-y: auto;"></div>
-        <button onclick="showScreen('menu')">Powrót</button>
+    <div id="screen-records" class="screen" style="background: rgba(0,0,0,0.95);">
+        <h2>Rekordy Świata</h2>
+        <p style="color: #aaa; font-size: 14px;">Obliczane na podstawie: WPM * Accuracy%</p>
+        <div style="margin-bottom: 10px;">
+            <label>Wybierz poziom: </label>
+            <select id="record-level-select" onchange="loadRecords()" style="background: black; color: var(--pink); border: 1px solid var(--pink); padding: 5px;">
+                <option value="1">Level 1</option><option value="2">Level 2</option>
+                <option value="3">Level 3</option><option value="4">Level 4</option>
+                <option value="5">Level 5</option><option value="6">Level 6</option>
+                <option value="7">Level 7</option><option value="8">Level 8</option>
+                <option value="9">Level 9</option><option value="10">Level 10</option>
+            </select>
+        </div>
+        <div id="records-container">Ładowanie wyników...</div>
+        <button onclick="backToMenu()" style="margin-top: 20px;">Powrót</button>
     </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script>
-    // --- KONFIGURACJA GRY ---
-    const wordsPool = ["javascript", "hacker", "cyber", "network", "system", "code", "pixel", "binary", "typing", "speed", "laser", "neon", "data", "web", "matrix", "cloud", "server", "logic", "array", "style"];
-    let currentLevel = 1;
-    let score = 0;
-    let wordsTyped = 0;
-    let totalKeys = 0;
-    let correctKeys = 0;
-    let timeLeft = 30;
-    let gameInterval, timerInterval;
-    let activeWords = [];
+    const firebaseConfig = {
+        apiKey: "AIzaSyBF8W9CkrbEIG1GkgG5v54ut_CGFm0x9dw",
+        authDomain: "typer-63c85.firebaseapp.com",
+        databaseURL: "https://typer-63c85-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "typer-63c85",
+        storageBucket: "typer-63c85.firebasestorage.app",
+        messagingSenderId: "820535906139",
+        appId: "1:820535906139:web:def56f6a0ed2039fe4147e",
+        measurementId: "G-BDMC0YGQX2"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    const canvas = document.getElementById('game-canvas');
-    const ctx = canvas.getContext('2d');
-    const input = document.getElementById('word-input');
+    const englishWords = ["apple", "river", "mountain", "window", "chair", "planet", "guitar", "ocean", "butterfly", "music", "forest", "bridge", "clock", "camera", "train", "ticket", "mirror", "garden", "cloud", "stone", "water", "storm", "coffee", "pizza", "orange", "yellow", "purple", "animal", "tiger", "lion", "elephant", "monkey", "spider", "snake", "eagle", "bread", "cheese", "butter", "knife", "spoon", "fork", "plate", "bottle", "glass", "paper", "pencil", "eraser", "school", "house", "street", "car", "bicycle", "plane", "boat", "ship", "shoe", "shirt", "pants", "hat", "glove", "winter", "summer", "spring", "autumn", "snow", "rain", "wind", "fire", "earth", "moon", "star", "space", "alien", "robot", "human", "friend", "family", "child", "doctor", "police", "money", "wallet", "bank", "store", "market", "city", "village", "country", "world", "history", "future", "present", "morning", "night", "evening", "today", "tomorrow", "yesterday", "week", "month", "year", "book", "story", "letter", "word", "number", "color", "shape", "circle", "square", "triangle", "heart", "smile", "laugh", "cry", "sleep", "dream", "wake", "walk", "run", "jump", "swim", "fly", "drive", "ride", "play", "game", "sport", "ball", "team", "player", "winner", "loser", "score", "goal", "point", "match", "race", "track", "field"];
+    
+    let currentLevel = 1, score = 0, wordsTyped = 0, totalKeysPressed = 0, correctKeysPressed = 0, timeLeft = 30;
+    let activeWords = [], gameInterval, timerInterval, animationFrameId;
 
-    // --- LOGIKA UI ---
-    function showScreen(id) {
+    const canvas = document.getElementById('game-canvas'), ctx = canvas.getContext('2d'), input = document.getElementById('word-input');
+
+    const levelContainer = document.getElementById('level-buttons');
+    for (let i = 1; i <= 10; i++) {
+        const btn = document.createElement('button'); btn.innerText = `LEVEL ${i}`;
+        btn.onclick = () => startLevel(i); levelContainer.appendChild(btn);
+    }
+
+    function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('screen-' + id).classList.add('active');
-        document.getElementById('game-ui').style.display = (id === 'game') ? 'block' : 'none';
-        if(id === 'menu') createLevelButtons();
+        document.getElementById(`screen-${screenId}`).classList.add('active');
+        if(screenId === 'records') loadRecords();
     }
 
-    function createLevelButtons() {
-        const container = document.getElementById('level-buttons');
-        container.innerHTML = '';
-        for(let i=1; i<=10; i++) {
-            const btn = document.createElement('button');
-            btn.innerText = i;
-            btn.onclick = () => startLevel(i);
-            container.appendChild(btn);
-        }
+    function backToMenu() {
+        clearInterval(gameInterval); clearInterval(timerInterval); cancelAnimationFrame(animationFrameId);
+        activeWords = []; input.value = ''; document.getElementById('game-ui').style.display = 'none';
+        showScreen('menu');
     }
 
-    // --- MECHANIKA GRY ---
-    function startLevel(lv) {
-        currentLevel = lv;
-        score = 0;
-        wordsTyped = 0;
-        totalKeys = 0;
-        correctKeys = 0;
-        timeLeft = 30;
-        activeWords = [];
-        input.value = '';
-        showScreen('game');
-        input.focus();
+    function startLevel(level) {
+        clearInterval(gameInterval); clearInterval(timerInterval); cancelAnimationFrame(animationFrameId);
+        currentLevel = level; score = 0; wordsTyped = 0; totalKeysPressed = 0; correctKeysPressed = 0; timeLeft = 30; activeWords = [];
+        document.getElementById('score-val').innerText = '0'; document.getElementById('wpm-val').innerText = '0';
+        document.getElementById('timer').innerText = '00:30'; document.getElementById('highscore-msg').innerText = '';
+        input.value = ''; document.getElementById('game-ui').style.display = 'block';
+        showScreen('game'); setTimeout(() => input.focus(), 100);
 
-        const speed = 1 + (currentLevel * 0.4); // Prędkość rośnie z levelem
-        const spawnRate = 2000 - (currentLevel * 150); // Słowa pojawiają się częściej
+        const baseFallSpeed = 0.5 + (level * 0.1), spawnRate = Math.max(700, 2000 - (level * 120));
 
         timerInterval = setInterval(() => {
             timeLeft--;
             document.getElementById('timer').innerText = `00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
-            if(timeLeft <= 0) endGame();
+            let elapsedMin = (30 - timeLeft) / 60;
+            document.getElementById('wpm-val').innerText = elapsedMin > 0 ? Math.round(wordsTyped / elapsedMin) : 0;
+            if (timeLeft <= 0) endLevel();
         }, 1000);
 
         gameInterval = setInterval(() => {
-            const word = wordsPool[Math.floor(Math.random()*wordsPool.length)];
             activeWords.push({
-                text: word,
-                x: Math.random() * (canvas.width - 100),
-                y: 0
+                text: englishWords[Math.floor(Math.random() * englishWords.length)],
+                x: Math.random() * (canvas.width - 150) + 20, y: -20,
+                speed: baseFallSpeed + (Math.random() * 0.3)
             });
         }, spawnRate);
-
-        requestAnimationFrame(update);
+        gameLoop();
     }
 
-    function update() {
-        if(timeLeft <= 0) return;
+    function gameLoop() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = '#ff007f';
-        ctx.font = '20px Monospace';
-
-        activeWords.forEach((w, index) => {
-            w.y += 1 + (currentLevel * 0.3);
-            ctx.fillText(w.text, w.x, w.y);
-
-            if(w.y > canvas.height) {
-                activeWords.splice(index, 1);
-            }
+        ctx.font = 'bold 22px Courier New'; ctx.fillStyle = '#ff007f';
+        activeWords.forEach((w, i) => {
+            w.y += w.speed; ctx.shadowBlur = 10; ctx.shadowColor = "#ff007f";
+            ctx.fillText(w.text, w.x, w.y); ctx.shadowBlur = 0;
+            if (w.y > canvas.height) activeWords.splice(i, 1);
         });
-
-        // WPM obliczany w czasie rzeczywistym
-        const elapsed = (30 - timeLeft) / 60;
-        const wpm = elapsed > 0 ? Math.round(wordsTyped / elapsed) : 0;
-        document.getElementById('wpm-val').innerText = wpm;
-
-        requestAnimationFrame(update);
+        animationFrameId = requestAnimationFrame(gameLoop);
     }
 
     input.addEventListener('input', () => {
-        totalKeys++;
-        const val = input.value.trim().toLowerCase();
-        const foundIndex = activeWords.findIndex(w => w.text === val);
-        
-        if(foundIndex !== -1) {
-            correctKeys += val.length;
-            wordsTyped++;
-            score += 10;
-            document.getElementById('score-val').innerText = score;
-            activeWords.splice(foundIndex, 1);
-            input.value = '';
+        totalKeysPressed++;
+        const typedText = input.value.trim().toLowerCase();
+        const matchIndex = activeWords.findIndex(w => w.text === typedText);
+        if (matchIndex !== -1) {
+            correctKeysPressed += typedText.length; wordsTyped++;
+            score += typedText.length * 10; document.getElementById('score-val').innerText = score;
+            activeWords.splice(matchIndex, 1); input.value = '';
         }
     });
 
-    function endGame() {
-        clearInterval(gameInterval);
-        clearInterval(timerInterval);
-        
-        const accuracy = totalKeys > 0 ? Math.round((correctKeys / totalKeys) * 100) : 0;
-        const wpm = Math.round(wordsTyped / 0.5); // 30s = 0.5 min
-        const finalScore = Math.round(wpm * (accuracy / 100));
+    async function endLevel() {
+        clearInterval(gameInterval); clearInterval(timerInterval); cancelAnimationFrame(animationFrameId);
+        document.getElementById('game-ui').style.display = 'none';
 
-        document.getElementById('result-text').innerHTML = `
-            <p>WPM: ${wpm}</p>
-            <p>Celność: ${accuracy}%</p>
-            <p style="font-size: 24px; color: var(--pink)">Wynik Końcowy: ${finalScore}</p>
-        `;
+        let finalWpm = Math.round(wordsTyped / 0.5);
+        let acc = totalKeysPressed > 0 ? Math.round((correctKeysPressed / totalKeysPressed) * 100) : 0;
+        let finalScore = Math.round(finalWpm * (Math.min(acc, 100) / 100));
 
-        checkHighscore(finalScore, currentLevel);
+        document.getElementById('sum-level').innerText = currentLevel;
+        document.getElementById('sum-wpm').innerText = finalWpm;
+        document.getElementById('sum-acc').innerText = Math.min(acc, 100);
+        document.getElementById('sum-score').innerText = finalScore;
+
         showScreen('summary');
+        if (finalScore > 0) checkLeaderboard(finalScore);
     }
 
-    // --- MIEJSCE NA FIREBASE (Placeholder) ---
-    function checkHighscore(score, lv) {
-        // Tu dodasz logikę sprawdzania Top 10 w Firebase
-        // Jeśli score > najniższy w top 10:
-        // const nick = prompt("Nowy Rekord! Podaj swój nick:");
-        // zapisz do Firebase...
+    // --- KLUCZOWA FUNKCJA: SPRAWDZANIE TOP 10 I DODAWANIE NICKU ---
+    function checkLeaderboard(playerScore) {
+        const ref = db.ref(`leaderboard/level${currentLevel}`);
+        
+        ref.orderByChild('score').once('value', snapshot => {
+            let data = snapshot.val();
+            let isTop10 = false;
+            let count = 0;
+            let minScore = 999999;
+
+            if (!data) {
+                isTop10 = true;
+            } else {
+                let records = Object.values(data);
+                count = records.length;
+                minScore = Math.min(...records.map(r => r.score));
+
+                // Jeśli jest mniej niż 10 osób LUB Twój wynik jest lepszy niż najsłabszy w Top 10
+                if (count < 10 || playerScore > minScore) {
+                    isTop10 = true;
+                }
+            }
+
+            if (isTop10) {
+                document.getElementById('highscore-msg').innerText = "NOWY REKORD TOP 10!";
+                // Małe opóźnienie, żeby gracz zobaczył wynik przed wyskoczeniem prompta
+                setTimeout(() => {
+                    let nick = prompt(`Gratulacje! Wynik ${playerScore} kwalifikuje się do TOP 10!\nPodaj swój nick:`);
+                    if (nick && nick.trim().length > 0) {
+                        // Dodajemy nowy rekord
+                        ref.push({ name: nick.trim(), score: playerScore });
+                        
+                        // Jeśli teraz jest więcej niż 10, usuwamy najsłabszy z bazy
+                        if (count >= 10) {
+                            ref.orderByChild('score').limitToFirst(1).once('value', snap => {
+                                snap.forEach(child => child.ref.remove());
+                            });
+                        }
+                        alert("Wynik zapisany!");
+                    }
+                }, 700);
+            }
+        });
     }
 
-    function showRecords() {
-        showScreen('records');
-        document.getElementById('records-list').innerHTML = "Łączenie z bazą...";
-        // Tu dodasz pobieranie z Firebase
+    function loadRecords() {
+        const lvl = document.getElementById('record-level-select').value;
+        const container = document.getElementById('records-container');
+        container.innerHTML = "Ładowanie...";
+        db.ref(`leaderboard/level${lvl}`).orderByChild('score').once('value', snapshot => {
+            const data = snapshot.val(); container.innerHTML = '';
+            if (!data) { container.innerHTML = "<div style='text-align:center;'>Brak rekordów.</div>"; return; }
+            Object.values(data).sort((a, b) => b.score - a.score).forEach((entry, i) => {
+                const div = document.createElement('div'); div.className = 'record-entry';
+                div.innerHTML = `<span>${i + 1}. ${entry.name}</span> <span>${entry.score} pkt</span>`;
+                container.appendChild(div);
+            });
+        });
     }
-
-    createLevelButtons();
 </script>
 </body>
 </html>
