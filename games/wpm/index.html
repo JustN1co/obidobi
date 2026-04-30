@@ -87,6 +87,8 @@
             border-bottom: 1px dashed #333; padding: 5px 0; font-size: 18px;
         }
         .record-entry span:nth-child(2) { color: var(--pink); font-weight: bold; }
+        
+        #menu-logo { margin-bottom: 20px; max-width: 80%; height: auto; }
     </style>
 </head>
 <body>
@@ -101,7 +103,7 @@
     </div>
 
     <div id="screen-menu" class="screen active" style="background: rgba(0,0,0,0.9);">
-        <h1>Typing Warrior</h1>
+        <img id="menu-logo" src="main1.png" alt="Typing Warrior">
         <button onclick="window.location.href='https://obidobi.pl/games'">Powrót do portalu</button>
         <div class="level-grid" id="level-buttons"></div>
         <button onclick="showScreen('records')">🏆 Rekordy Świata</button>
@@ -157,12 +159,26 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const englishWords = ["apple", "river", "mountain", "window", "chair", "planet", "guitar", "ocean", "butterfly", "music", "forest", "bridge", "clock", "camera", "train", "ticket", "mirror", "garden", "cloud", "stone", "water", "storm", "coffee", "pizza", "orange", "yellow", "purple", "animal", "tiger", "lion", "elephant", "monkey", "spider", "snake", "eagle", "bread", "cheese", "butter", "knife", "spoon", "fork", "plate", "bottle", "glass", "paper", "pencil", "eraser", "school", "house", "street", "car", "bicycle", "plane", "boat", "ship", "shoe", "shirt", "pants", "hat", "glove", "winter", "summer", "spring", "autumn", "snow", "rain", "wind", "fire", "earth", "moon", "star", "space", "alien", "robot", "human", "friend", "family", "child", "doctor", "police", "money", "wallet", "bank", "store", "market", "city", "village", "country", "world", "history", "future", "present", "morning", "night", "evening", "today", "tomorrow", "yesterday", "week", "month", "year", "book", "story", "letter", "word", "number", "color", "shape", "circle", "square", "triangle", "heart", "smile", "laugh", "cry", "sleep", "dream", "wake", "walk", "run", "jump", "swim", "fly", "drive", "ride", "play", "game", "sport", "ball", "team", "player", "winner", "loser", "score", "goal", "point", "match", "race", "track", "field"];
+    const englishWords = ["apple", "river", "mountain", "window", "chair", "planet", "guitar", "ocean", "butterfly", "music", "forest", "bridge", "clock", "camera", "train", "ticket", "mirror", "garden", "cloud", "stone", "water", "storm", "coffee", "pizza", "orange", "yellow", "purple", "animal", "tiger", "lion", "elephant", "monkey", "spider", "snake", "eagle", "bread", "cheese", "butter", "knife", "spoon", "fork", "plate", "bottle", "glass", "paper", "pencil", "eraser", "school", "house", "street", "car", "bicycle", "plane", "boat", "ship", "shoe", "shirt", "pants", "hat", "glove", "winter", "summer", "spring", "autumn", "snow", "rain", "wind", "fire", "earth", "moon", "star", "space", "alien", "robot", "human", "friend", "family", "child", "doctor", "police", "money", "wallet", "bank", "store", "market", "city", "village", "country", "world", "history", "future", "present", "morning", "night", "evening", "today", "tomorrow", "yesterday", "week", "month", "year", "book", "story", "letter", "word", "number", "color", "shape", "circle", "square", "triangle", "heart", "smile", "laugh", "cry", "sleep", "dream", "wake", "walk", "run", "jump", "swim", "fly", "drive", "ride", "play", "game", "sport", "ball", "team", "player", "winner", "loser", "score", "goal", "point", "match", "race", "track", "field", "computer", "keyboard", "mouse", "laptop", "screen", "battery", "phone", "internet", "website", "software", "message", "email", "video", "audio", "network", "server", "data", "password", "button", "teacher", "student", "engineer", "nurse", "artist", "chef", "pilot", "lawyer", "farmer", "soldier", "writer", "actor", "door", "roof", "floor", "wall", "stairs", "bedroom", "kitchen", "bathroom", "fridge", "oven", "lamp", "desk", "shelf", "towel", "soap", "brush", "blanket", "pillow", "key", "curtain", "desert", "island", "volcano", "valley", "canyon", "jungle", "cave", "beach", "sand", "shell", "flower", "leaf", "tree", "grass", "thunder", "lightning", "fog", "frost", "sunrise", "sunset", "head", "face", "eye", "ear", "nose", "mouth", "tooth", "hair", "hand", "finger", "arm", "leg", "foot", "blood", "brain", "bone", "skin", "muscle", "health", "breakfast", "lunch", "dinner", "sugar", "salt", "pepper", "honey", "milk", "juice", "tea", "soup", "salad", "meat", "fish", "fruit", "vegetable", "cake", "cookie", "chocolate", "ice", "happy", "sad", "angry", "brave", "smart", "kind", "funny", "strong", "weak", "fast", "slow", "heavy", "light", "hard", "soft", "loud", "quiet", "beautiful", "ugly", "clean", "dirty", "moment", "second", "minute", "hour", "century", "peace", "war", "truth", "lie", "freedom", "justice", "power", "energy", "shadow", "sound", "silence", "idea", "thought", "memory"];
     
     let currentLevel = 1, score = 0, wordsTyped = 0, totalKeysPressed = 0, correctKeysPressed = 0, timeLeft = 30;
     let activeWords = [], gameInterval, timerInterval, animationFrameId;
 
     const canvas = document.getElementById('game-canvas'), ctx = canvas.getContext('2d'), input = document.getElementById('word-input');
+
+    // Dźwięk poprawnie wpisanego słowa
+    const wordBellSound = new Audio('word_bell.mp3');
+    wordBellSound.volume = 0.5;
+
+    // Animacja logo w menu
+    const menuLogo = document.getElementById('menu-logo');
+    let isMain1 = true;
+    setInterval(() => {
+        if(menuLogo) {
+            isMain1 = !isMain1;
+            menuLogo.src = isMain1 ? 'main1.png' : 'main2.png';
+        }
+    }, 400);
 
     const levelContainer = document.getElementById('level-buttons');
     for (let i = 1; i <= 10; i++) {
@@ -226,6 +242,10 @@
         const typedText = input.value.trim().toLowerCase();
         const matchIndex = activeWords.findIndex(w => w.text === typedText);
         if (matchIndex !== -1) {
+            // Odtworzenie dźwięku przy poprawnym słowie
+            wordBellSound.currentTime = 0;
+            wordBellSound.play().catch(e => console.log('Odtwarzanie dźwięku zablokowane przez przeglądarkę:', e));
+
             correctKeysPressed += typedText.length; wordsTyped++;
             score += typedText.length * 10; document.getElementById('score-val').innerText = score;
             activeWords.splice(matchIndex, 1); input.value = '';
@@ -249,7 +269,6 @@
         if (finalScore > 0) checkLeaderboard(finalScore);
     }
 
-    // --- KLUCZOWA FUNKCJA: SPRAWDZANIE TOP 10 I DODAWANIE NICKU ---
     function checkLeaderboard(playerScore) {
         const ref = db.ref(`leaderboard/level${currentLevel}`);
         
@@ -266,7 +285,6 @@
                 count = records.length;
                 minScore = Math.min(...records.map(r => r.score));
 
-                // Jeśli jest mniej niż 10 osób LUB Twój wynik jest lepszy niż najsłabszy w Top 10
                 if (count < 10 || playerScore > minScore) {
                     isTop10 = true;
                 }
@@ -274,14 +292,11 @@
 
             if (isTop10) {
                 document.getElementById('highscore-msg').innerText = "NOWY REKORD TOP 10!";
-                // Małe opóźnienie, żeby gracz zobaczył wynik przed wyskoczeniem prompta
                 setTimeout(() => {
                     let nick = prompt(`Gratulacje! Wynik ${playerScore} kwalifikuje się do TOP 10!\nPodaj swój nick:`);
                     if (nick && nick.trim().length > 0) {
-                        // Dodajemy nowy rekord
                         ref.push({ name: nick.trim(), score: playerScore });
                         
-                        // Jeśli teraz jest więcej niż 10, usuwamy najsłabszy z bazy
                         if (count >= 10) {
                             ref.orderByChild('score').limitToFirst(1).once('value', snap => {
                                 snap.forEach(child => child.ref.remove());
