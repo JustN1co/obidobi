@@ -11,6 +11,8 @@
             --text: #e0e0e0;
             --accent: #4caf50;
             --leaf: #81c784;
+            --shop-light: #81c784;
+            --shop-dark: #66bb6a;
         }
 
         body {
@@ -46,12 +48,22 @@
 
         /* --- IKONA SKLEPU --- */
         .shop-trigger {
-            position: fixed; top: 20px; right: 20px; background: #ffb300; border: 3px solid #ffa000;
+            position: fixed; top: 20px; right: 20px; background: var(--shop-light); border: 3px solid var(--shop-dark);
             border-radius: 50%; width: 70px; height: 70px; font-size: 35px; display: flex;
             justify-content: center; align-items: center; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 179, 0, 0.8); z-index: 50; transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(129, 199, 132, 0.6); z-index: 50; transition: transform 0.2s, background 0.2s;
         }
-        .shop-trigger:hover { animation: ringBell 0.4s ease-in-out infinite alternate; background: #ffca28; }
+        .shop-trigger:hover { animation: ringBell 0.4s ease-in-out infinite alternate; background: #aed581; }
+
+        /* --- IKONA STATYSTYK --- */
+        .stats-trigger {
+            position: fixed; top: 20px; right: 110px; background: #3e3e5e; border: 3px solid #5d5d8a;
+            border-radius: 50%; width: 70px; height: 70px; font-size: 35px; display: flex;
+            justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); z-index: 50; transition: transform 0.2s;
+        }
+        .stats-trigger:hover { transform: scale(1.1); background: #5d5d8a; }
+
         @keyframes ringBell { 0% { transform: rotate(-15deg); } 100% { transform: rotate(15deg); } }
 
         /* --- OBSZAR GRY --- */
@@ -114,7 +126,7 @@
             border: 2px solid var(--accent); max-width: 550px; width: 95%;
             max-height: 85vh; display: flex; flex-direction: column; position: relative;
         }
-        .modal-title { font-size: 2em; margin-bottom: 15px; color: #ffb300; text-align: center;}
+        .modal-title { font-size: 2em; margin-bottom: 15px; color: var(--shop-light); text-align: center;}
         .close-btn { position: absolute; top: 15px; right: 15px; background: #ff5252; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; font-weight: bold; cursor: pointer; font-size: 18px; }
 
         .shop-content { overflow-y: auto; padding-right: 10px; }
@@ -130,15 +142,28 @@
         .upg-cost { font-weight: bold; color: #ff5252; margin-top: 5px; }
         .upg-count { font-size: 1.3em; font-weight: bold; color: var(--accent); }
 
+        .prestige-btn {
+            background: #b71c1c; color: white; border: 2px solid #ff5252; padding: 15px; width: 100%;
+            font-size: 1.2em; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px;
+            transition: 0.3s;
+        }
+        .prestige-btn:hover { background: #d32f2f; }
+        .prestige-btn.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+
         .floating-number { position: absolute; font-weight: bold; font-size: 1.5em; color: #fff; pointer-events: none; text-shadow: 0 0 5px rgba(0,0,0,0.8); animation: floatUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; z-index: 100; }
         @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-80px) scale(1.5); opacity: 0; } }
         @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
+
+        /* --- STATYSTYKI --- */
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.2em; border-bottom: 1px dashed #5d5d8a; padding-bottom: 5px; }
+        .stat-val { font-weight: bold; color: #fff; }
     </style>
 </head>
 <body>
 
     <a href="https://obidobi.pl/games" class="back-button">🔙 Powrót</a>
 
+    <div class="stats-trigger" onclick="openStats()">📊</div>
     <div class="shop-trigger" id="shopTriggerBtn" onclick="openShop()">🏪</div>
 
     <div class="game-area">
@@ -167,6 +192,33 @@
                 <div id="tools-shop"></div>
                 <div class="section-title">Rośliny (Automatyczny Zarobek)</div>
                 <div id="plants-shop"></div>
+                
+                <!-- Przycisk prestiżu na dole sklepu -->
+                <button id="prestige-btn" class="prestige-btn locked" onclick="tryPrestige()">
+                    🔥 Zresetuj Postęp (Wymaga: 10x Nieskończony Lotos)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal statystyk -->
+    <div id="stats-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 400px;">
+            <button class="close-btn" onclick="closeStats()">X</button>
+            <div class="modal-title">Statystyki</div>
+            <div style="margin-top: 20px;">
+                <div class="stat-row">
+                    <span>Razem zebrano:</span>
+                    <span class="stat-val" id="stat-total-score">0 🍃</span>
+                </div>
+                <div class="stat-row">
+                    <span>Czas w grze:</span>
+                    <span class="stat-val" id="stat-time-played">0s</span>
+                </div>
+                <div class="stat-row">
+                    <span>Restartów (Prestiż):</span>
+                    <span class="stat-val" style="color: #ff5252;" id="stat-prestiges">0</span>
+                </div>
             </div>
         </div>
     </div>
@@ -180,7 +232,10 @@
     </div>
 
     <script>
+        // Ściszony dzwonek
         const bellSound = new Audio('dzwonek.mp3'); 
+        bellSound.volume = 0.20; // Ustawienie bardzo cichego poziomu dźwięku
+        
         document.getElementById('shopTriggerBtn').addEventListener('mouseenter', () => {
             bellSound.currentTime = 0; 
             bellSound.play().catch(e => {});
@@ -188,7 +243,7 @@
 
         function formatNumber(num) {
             if (num < 1000) return Math.floor(num);
-            const suffixes = ["", "k", "M", "mld", "bln", "bld", "tryl", "tryliard", "kwadrylion"];
+            const suffixes = ["", "k", "M", "mld", "bln", "bld", "tryl", "tryliard", "kwadrylion", "kwintylion"];
             let tier = Math.floor(Math.log10(Math.abs(num)) / 3);
             if (tier === 0) return Math.floor(num);
             if (tier >= suffixes.length) tier = suffixes.length - 1; 
@@ -198,33 +253,43 @@
             return scaled.toFixed(2) + suffixes[tier];
         }
 
+        function formatTime(seconds) {
+            let h = Math.floor(seconds / 3600);
+            let m = Math.floor((seconds % 3600) / 60);
+            let s = seconds % 60;
+            if (h > 0) return `${h}h ${m}m ${s}s`;
+            if (m > 0) return `${m}m ${s}s`;
+            return `${s}s`;
+        }
+
+        // Zbalansowane statystyki - Droższe, słabsze
         const ITEMS = {
             tools: {
-                t1: { name: "Konewka", icon: "💦", desc: "Zwiększa moc", baseCost: 50, power: 1 },
-                t2: { name: "Nawóz", icon: "💩", desc: "Zwiększa moc", baseCost: 500, power: 10 },
-                t3: { name: "Złoty Szpadel", icon: "⛏️", desc: "Zwiększa moc", baseCost: 7500, power: 150 },
-                t4: { name: "Magiczna Woda", icon: "🧪", desc: "Zwiększa moc", baseCost: 100000, power: 2500 },
-                t5: { name: "Krasnal-Cyborg", icon: "🤖", desc: "Zwiększa moc", baseCost: 5000000, power: 100000 },
-                t6: { name: "Dron Zapylający", icon: "🚁", desc: "Zwiększa moc", baseCost: 500000000, power: 10000000 },
-                t7: { name: "Satelita Ogrodnicza", icon: "🛰️", desc: "Zwiększa moc", baseCost: 50000000000, power: 1000000000 },
-                t8: { name: "Wymiarowy Sekator", icon: "✂️", desc: "Zwiększa moc", baseCost: 5000000000000, power: 150000000000 }
+                t1: { name: "Konewka", icon: "💦", desc: "Zwiększa moc", baseCost: 100, power: 1 },
+                t2: { name: "Nawóz", icon: "💩", desc: "Zwiększa moc", baseCost: 1500, power: 8 },
+                t3: { name: "Złoty Szpadel", icon: "⛏️", desc: "Zwiększa moc", baseCost: 20000, power: 50 },
+                t4: { name: "Magiczna Woda", icon: "🧪", desc: "Zwiększa moc", baseCost: 350000, power: 300 },
+                t5: { name: "Krasnal-Cyborg", icon: "🤖", desc: "Zwiększa moc", baseCost: 5000000, power: 2500 },
+                t6: { name: "Dron Zapylający", icon: "🚁", desc: "Zwiększa moc", baseCost: 120000000, power: 15000 },
+                t7: { name: "Satelita Ogrodnicza", icon: "🛰️", desc: "Zwiększa moc", baseCost: 3000000000, power: 120000 },
+                t8: { name: "Wymiarowy Sekator", icon: "✂️", desc: "Zwiększa moc", baseCost: 80000000000, power: 800000 }
             },
             plants: {
-                p1: { name: "Stokrotka", icon: "🌼", baseCost: 15, power: 1 },
-                p2: { name: "Tulipan", icon: "🌷", baseCost: 200, power: 15 },
-                p3: { name: "Słonecznik", icon: "🌻", baseCost: 3000, power: 200 },
-                p4: { name: "Róża", icon: "🌹", baseCost: 25000, power: 1500 },
-                p5: { name: "Drzewko Bonsai", icon: "🌳", baseCost: 250000, power: 12000 },
-                p6: { name: "Drzewo Życia", icon: "✨", baseCost: 5000000, power: 150000 },
-                p7: { name: "Magiczna Fasola", icon: "🌱", baseCost: 100000000, power: 3000000 },
-                p8: { name: "Kryształowa Palma", icon: "🌴", baseCost: 5000000000, power: 150000000 },
-                p9: { name: "Drzewo Złota", icon: "💰", baseCost: 250000000000, power: 8000000000 },
-                p10: { name: "Kosmiczny Kaktus", icon: "🌵", baseCost: 10000000000000, power: 350000000000 },
-                p11: { name: "Galaktyczna Orchidea", icon: "🌌", baseCost: 500000000000000, power: 20000000000000 },
-                p12: { name: "Supernowa Paproć", icon: "☄️", baseCost: 25000000000000000, power: 1000000000000000 },
-                p13: { name: "Wymiarowy Grzyb", icon: "🍄", baseCost: 1000000000000000000, power: 50000000000000000 },
-                p14: { name: "Yggdrasil", icon: "🌲", baseCost: 50000000000000000000, power: 3000000000000000000 },
-                p15: { name: "Nieskończony Lotos", icon: "🏵️", baseCost: 1e23, power: 5e21 }
+                p1: { name: "Stokrotka", icon: "🌼", baseCost: 50, power: 1 },
+                p2: { name: "Tulipan", icon: "🌷", baseCost: 800, power: 6 },
+                p3: { name: "Słonecznik", icon: "🌻", baseCost: 8500, power: 35 },
+                p4: { name: "Róża", icon: "🌹", baseCost: 75000, power: 200 },
+                p5: { name: "Drzewko Bonsai", icon: "🌳", baseCost: 1000000, power: 1500 },
+                p6: { name: "Drzewo Życia", icon: "✨", baseCost: 15000000, power: 8000 },
+                p7: { name: "Magiczna Fasola", icon: "🌱", baseCost: 250000000, power: 55000 },
+                p8: { name: "Kryształowa Palma", icon: "🌴", baseCost: 4500000000, power: 450000 },
+                p9: { name: "Drzewo Złota", icon: "💰", baseCost: 100000000000, power: 3000000 },
+                p10: { name: "Kosmiczny Kaktus", icon: "🌵", baseCost: 2500000000000, power: 22000000 },
+                p11: { name: "Galaktyczna Orchidea", icon: "🌌", baseCost: 75000000000000, power: 200000000 },
+                p12: { name: "Supernowa Paproć", icon: "☄️", baseCost: 3000000000000000, power: 1800000000 },
+                p13: { name: "Wymiarowy Grzyb", icon: "🍄", baseCost: 80000000000000000, power: 15000000000 },
+                p14: { name: "Yggdrasil", icon: "🌲", baseCost: 3000000000000000000, power: 150000000000 },
+                p15: { name: "Nieskończony Lotos", icon: "🏵️", baseCost: 1e20, power: 2e12 }
             }
         };
 
@@ -234,6 +299,9 @@
 
         let game = {
             score: 0,
+            totalScore: 0,
+            timePlayed: 0, // Czas w grze (sekundy)
+            prestiges: 0, // Restartów
             inventory: { ...defaultInventory },
             lastChestTime: 0,
             activeBuff: { multiplier: 1, expires: 0, name: "" }
@@ -244,6 +312,14 @@
 
         function openShop() { document.getElementById('shop-modal').style.display = 'flex'; updateShopUI(); }
         function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+        
+        function openStats() {
+            document.getElementById('stat-total-score').innerText = formatNumber(game.totalScore) + " 🍃";
+            document.getElementById('stat-time-played').innerText = formatTime(game.timePlayed);
+            document.getElementById('stat-prestiges').innerText = game.prestiges;
+            document.getElementById('stats-modal').style.display = 'flex';
+        }
+        function closeStats() { document.getElementById('stats-modal').style.display = 'none'; }
 
         function initShop() {
             const toolsShop = document.getElementById('tools-shop');
@@ -269,7 +345,8 @@
 
         function getCost(id) {
             let item = ITEMS.tools[id] || ITEMS.plants[id];
-            return Math.floor(item.baseCost * Math.pow(1.15, game.inventory[id] || 0));
+            // Podwyższony współczynnik kosztów z 1.15 na 1.20 (Znacznie mocniej drożeją)
+            return Math.floor(item.baseCost * Math.pow(1.20, game.inventory[id] || 0));
         }
 
         function buyItem(id) {
@@ -314,6 +391,7 @@
             let mult = game.activeBuff.expires > Date.now() ? game.activeBuff.multiplier : 1;
             let earned = calculatedClickPower * mult;
             game.score += earned;
+            game.totalScore += earned; // Statystyki dodane
             
             let rect = e.target.getBoundingClientRect();
             spawnFloatingText(e.clientX || rect.left + rect.width / 2, e.clientY || rect.top + rect.height / 2, `+${formatNumber(earned)}`, mult > 1 ? '#ffea00' : '#81c784');
@@ -328,12 +406,14 @@
         }
 
         function openChest() {
-            const COOLDOWN = 43200000;
+            // Zmiana z 12 godzin (43200000 ms) na 3 godziny (10800000 ms)
+            const COOLDOWN = 10800000;
             const now = Date.now();
             if (now - game.lastChestTime >= COOLDOWN) {
                 game.lastChestTime = now;
                 const rng = Math.random();
                 let prize = "";
+                let bonus = 0;
                 
                 if (rng < 0.3) {
                     game.activeBuff = { multiplier: 2, expires: now + 600000, name: "2x Produkcja (10 min)" };
@@ -342,12 +422,14 @@
                     game.activeBuff = { multiplier: 5, expires: now + 120000, name: "5x Produkcja (2 min)" };
                     prize = "🔥 PIĘCIOKROTNA produkcja na 2 minuty!";
                 } else if (rng < 0.8) {
-                    let bonus = calculatedPPS * 3600 || 500;
+                    bonus = calculatedPPS * 3600 || 500;
                     game.score += bonus;
+                    game.totalScore += bonus;
                     prize = `💰 Deszcz listków! Wygrywasz +${formatNumber(bonus)} 🍃`;
                 } else {
-                    let bonus = game.score;
+                    bonus = game.score;
                     game.score += bonus;
+                    game.totalScore += bonus;
                     prize = `🏦 Bank rozbity! Podwajamy Twój portfel (+${formatNumber(bonus)} 🍃)`;
                 }
 
@@ -361,10 +443,33 @@
 
         function closeChestModal() { document.getElementById('chest-modal').style.display = 'none'; }
 
+        function tryPrestige() {
+            if (game.inventory['p15'] >= 10) {
+                if (confirm("🔥 Czy na pewno chcesz ZRESETOWAĆ POSTĘP? \n\nZdobędziesz 1 punkt w statystykach, ale stracisz WSZYSTKIE obecne liście, ulepszenia i rośliny.")) {
+                    game.prestiges++;
+                    game.score = 0;
+                    game.inventory = { ...defaultInventory };
+                    game.activeBuff = { multiplier: 1, expires: 0, name: "" };
+                    
+                    recalculateStats();
+                    updateUI();
+                    rebuildGarden();
+                    saveGame();
+                    closeShop();
+                    alert("Gracz odrodzony! Progress został pomyślnie zresetowany.");
+                }
+            } else {
+                alert("Brakuje zasobów! Potrzebujesz 10x Nieskończony Lotos, aby użyć tej funkcji.");
+            }
+        }
+
         setInterval(() => {
             const now = Date.now();
             let mult = 1;
             
+            // Czas gry
+            game.timePlayed++;
+
             if (game.activeBuff.expires > now) {
                 mult = game.activeBuff.multiplier;
                 document.getElementById('buff-timer').style.display = 'block';
@@ -377,12 +482,14 @@
             if (calculatedPPS > 0) {
                 let earned = calculatedPPS * mult;
                 game.score += earned;
+                game.totalScore += earned;
                 const garden = document.getElementById('garden');
                 const rect = garden.getBoundingClientRect();
                 spawnFloatingText(rect.left + (Math.random() * rect.width), rect.top + (Math.random() * rect.height), `+${formatNumber(earned)}`, '#fff');
             }
 
-            const COOLDOWN = 43200000;
+            // Zmiana z 12h na 3h (10800000 ms)
+            const COOLDOWN = 10800000;
             const btn = document.getElementById('chest-btn');
             const txt = document.getElementById('chest-cooldown');
             if (now - game.lastChestTime >= COOLDOWN) {
@@ -423,15 +530,29 @@
                 document.getElementById(`count-${id}`).innerText = game.inventory[id];
                 document.getElementById(`item-${id}`).classList.toggle('locked', game.score < cost);
             }
+
+            // Przycisk Prestiżu
+            let p15Count = game.inventory['p15'] || 0;
+            let pBtn = document.getElementById('prestige-btn');
+            if (p15Count >= 10) {
+                pBtn.classList.remove('locked');
+                pBtn.innerText = "🔥 Zresetuj Postęp (Gotowe!)";
+            } else {
+                pBtn.classList.add('locked');
+                pBtn.innerText = `🔥 Zresetuj Postęp (Wymaga: ${p15Count}/10 Nieskończony Lotos)`;
+            }
         }
 
-        function saveGame() { localStorage.setItem('ogrodV4', JSON.stringify(game)); }
+        function saveGame() { localStorage.setItem('ogrodV5', JSON.stringify(game)); } // Zmieniony klucz, żeby wczytał nową, zbalansowaną wersję i statystyki od zera, lub można zostawić 'ogrodV4'
         
         function loadGame() {
-            let saved = localStorage.getItem('ogrodV4');
+            let saved = localStorage.getItem('ogrodV5');
             if (saved) {
                 let p = JSON.parse(saved);
                 game.score = p.score || 0;
+                game.totalScore = p.totalScore || p.score || 0; // Kompatybilność wsteczna
+                game.timePlayed = p.timePlayed || 0;
+                game.prestiges = p.prestiges || 0;
                 game.lastChestTime = p.lastChestTime || 0;
                 game.activeBuff = p.activeBuff || { multiplier: 1, expires: 0, name: "" };
                 if (p.inventory) {
