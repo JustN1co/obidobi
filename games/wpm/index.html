@@ -50,7 +50,8 @@
         button:hover { background: var(--pink); color: var(--black); box-shadow: 0 0 15px var(--pink); }
 
         .level-grid {
-            display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin: 30px 0;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; 
+            margin: 15px 0; /* Zmniejszono odstępy by zacieśnić UI */
         }
 
         #game-ui {
@@ -88,12 +89,20 @@
         }
         .record-entry span:nth-child(2) { color: var(--pink); font-weight: bold; }
         
-        /* ZAKTUALIZOWANY STYL LOGO */
+        /* ZAKTUALIZOWANY STYL LOGO I MENU */
         #menu-logo { 
-            margin-top: 50px; /* Przesunięcie w dół */
-            margin-bottom: 20px; 
-            max-width: 56%; /* Skala 0.7 z poprzednich 80% */
+            margin-top: -100px; /* Przesunięcie mocno w górę */
+            margin-bottom: -30px; /* Ujemny margines pozwala UI wejść pod/na logo */
+            max-width: 56%; 
             height: auto; 
+            position: relative;
+            z-index: 1; /* Logo warstwę niżej */
+        }
+
+        /* Gwarantuje, że przyciski są zawsze klikalne, nawet jak nachodzą na przezroczyste logo */
+        #screen-menu button, #screen-menu .level-grid {
+            position: relative;
+            z-index: 2; 
         }
     </style>
 </head>
