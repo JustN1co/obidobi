@@ -51,7 +51,7 @@
 
         .level-grid {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; 
-            margin: 15px 0; /* Zmniejszono odstępy by zacieśnić UI */
+            margin: 15px 0;
         }
 
         #game-ui {
@@ -89,17 +89,15 @@
         }
         .record-entry span:nth-child(2) { color: var(--pink); font-weight: bold; }
         
-        /* ZAKTUALIZOWANY STYL LOGO I MENU */
         #menu-logo { 
-            margin-top: -100px; /* Przesunięcie mocno w górę */
-            margin-bottom: -30px; /* Ujemny margines pozwala UI wejść pod/na logo */
+            margin-top: -100px; 
+            margin-bottom: -30px; 
             max-width: 56%; 
             height: auto; 
             position: relative;
-            z-index: 1; /* Logo warstwę niżej */
+            z-index: 1; 
         }
 
-        /* Gwarantuje, że przyciski są zawsze klikalne, nawet jak nachodzą na przezroczyste logo */
         #screen-menu button, #screen-menu .level-grid {
             position: relative;
             z-index: 2; 
@@ -141,7 +139,8 @@
         <button onclick="backToMenu()">Wróć do listy leveli</button>
     </div>
 
-    <div id="screen-records" class="screen" style="background: rgba(0,0,0,0.95);">
+    <!-- DODANO PADDING-TOP ABY PRZESUNĄĆ ZAWARTOŚĆ W DÓŁ -->
+    <div id="screen-records" class="screen" style="background: rgba(0,0,0,0.95); padding-top: 80px;">
         <h2>Rekordy Świata</h2>
         <p style="color: #aaa; font-size: 14px;">Obliczane na podstawie: WPM * Accuracy%</p>
         <div style="margin-bottom: 10px;">
