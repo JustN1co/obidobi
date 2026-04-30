@@ -88,7 +88,13 @@
         }
         .record-entry span:nth-child(2) { color: var(--pink); font-weight: bold; }
         
-        #menu-logo { margin-bottom: 20px; max-width: 80%; height: auto; }
+        /* ZAKTUALIZOWANY STYL LOGO */
+        #menu-logo { 
+            margin-top: 50px; /* Przesunięcie w dół */
+            margin-bottom: 20px; 
+            max-width: 56%; /* Skala 0.7 z poprzednich 80% */
+            height: auto; 
+        }
     </style>
 </head>
 <body>
@@ -166,11 +172,9 @@
 
     const canvas = document.getElementById('game-canvas'), ctx = canvas.getContext('2d'), input = document.getElementById('word-input');
 
-    // Dźwięk poprawnie wpisanego słowa
     const wordBellSound = new Audio('word_bell.mp3');
     wordBellSound.volume = 0.5;
 
-    // Animacja logo w menu
     const menuLogo = document.getElementById('menu-logo');
     let isMain1 = true;
     setInterval(() => {
@@ -242,7 +246,6 @@
         const typedText = input.value.trim().toLowerCase();
         const matchIndex = activeWords.findIndex(w => w.text === typedText);
         if (matchIndex !== -1) {
-            // Odtworzenie dźwięku przy poprawnym słowie
             wordBellSound.currentTime = 0;
             wordBellSound.play().catch(e => console.log('Odtwarzanie dźwięku zablokowane przez przeglądarkę:', e));
 
